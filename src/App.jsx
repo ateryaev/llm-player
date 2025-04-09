@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import loadModelList, { continueChat } from "./utils/openai";
 import Divider from "./components/Divider";
 import Message from "./components/Message";
@@ -23,6 +23,8 @@ export default function OpenAIChatApp() {
   const [showConfig, setShowConfig] = useState(false);
   //const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
   const [scrollBottom, setScrollBottom] = useState(0);
+  const [chatGenerator, setChatGenerator] = useState(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
 
   //const [models, setModels] = useState([]);
   //const [selectedModel, setSelectedModel] = useState("echo-assistant-1");
@@ -62,104 +64,111 @@ export default function OpenAIChatApp() {
   const [loading, setLoading] = useState(false);
 
   const [chatHistory, setChatHistory] = useState([
-    { role: "system", content: "Response in English only." },
+    // { role: "system", content: "Response in English only." },
     { role: "user", content: "What is AI?" },
     { role: "assistant", model: "start-up-model", error: "Connection timeout", content: "AI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\n" },
-    { role: "user", content: "AI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\n" },
+    { role: "user", deleted: true, content: "AI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\n" },
     { role: "assistant", model: "start-up-model", content: "AI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\n" },
   ]);
 
-
-  // scroll to bottom when document height changing
-  useEffect(() => {
-    // function isScrolledToBottom() {
-    //   const scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
-    //   const scrollHeight = (document.documentElement || document.body.parentNode || document.body).scrollHeight;
-    //   const clientHeight = document.documentElement.clientHeight || window.innerHeight || document.body.clientHeight;
-    //   return Math.ceil(scrollTop + clientHeight) >= scrollHeight;
-    // }
-
-    const handleScroll = () => {
-      //window.scrollTo(0, document.body.scrollHeight);
-      //window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth', })
-    };
-    //handleScroll();
+  const chatSize = useMemo(() => {
+    let size = 0;
+    chatHistory.forEach((m) => {
+      size += m.content.length + m.role.length
+    });
+    return size;
   }, [chatHistory]);
 
-  function testScrolledToBottom() {
-    const scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
-    const scrollHeight = (document.documentElement || document.body.parentNode || document.body).scrollHeight;
-    const clientHeight = document.documentElement.clientHeight || window.innerHeight || document.body.clientHeight;
-    return Math.ceil(scrollTop + clientHeight) >= scrollHeight;
-  }
-
-  function calcScrollBottom() {
-    const scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
-    const scrollHeight = (document.documentElement || document.body.parentNode || document.body).scrollHeight;
-    const clientHeight = document.documentElement.clientHeight || window.innerHeight || document.body.clientHeight;
-    return scrollHeight - clientHeight - scrollTop;
-  }
-
-
-  function scrollToBottom(bottomOffset) {
-    const scrollTop = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
-    const scrollHeight = (document.documentElement || document.body.parentNode || document.body).scrollHeight;
-    const clientHeight = document.documentElement.clientHeight || window.innerHeight || document.body.clientHeight;
-    //const scrollBottom = scrollHeight - clientHeight - scrollTop;
-
-    const newScrollTop = scrollHeight - clientHeight - bottomOffset;
-    console.log("- scrollToBottom", scrollTop, clientHeight, scrollHeight, scrollBottom);
-    console.log("- newScrollTop", newScrollTop);
-    //scrollTop+clientHeight+scrollBottom ´= scrollHeight
-    window.scrollTo(0, newScrollTop);
-
-  }
-
-
+  const lastMessage = useMemo(() => {
+    if (chatHistory.length === 0) return null;
+    return chatHistory[chatHistory.length - 1];
+  }, [chatHistory]);
 
   async function sendMessage(msg) {
 
     scrollerRef.current && (scrollerRef.current.scrollTop = scrollerRef.current.scrollHeight);
 
-    console.log("sendMessage", chatHistory, config.baseUrl, config.model, msg);
-    let updatedHistory = [...chatHistory, { role: "user", content: msg }, { role: "assistant", model: config.model, content: "" }];
-    setChatHistory([...chatHistory, { role: "user", content: msg }]);
-
-    await wait(300);
-    setChatHistory(updatedHistory);
     setLoading(true);
-    await wait(300);
+    let messagesForApi = [...chatHistory];
+    messagesForApi.push({ role: "user", content: msg });
 
     const api = getEndpointInfo(config.endpoint).implementation;
+    console.log("api", messagesForApi);
+    const chat = api.continueChat(config.baseUrl, config.model, messagesForApi, { max_tokens: 200 });
+    setChatGenerator(chat);
 
-    const chat = api.continueChat(config.baseUrl, config.model, updatedHistory, { max_tokens: 200 });
+    setChatHistory((h) => [...h, { role: "user", content: msg }, { role: "assistant", model: config.model, content: "" }]);
+    await wait(200);
 
-    //await wait(1500);
     try {
-      let chunk;
+      let chunk = "";
+      let content = "";
       while ((chunk = await chat.read()) !== false) {
-        console.log("chunk: " + chunk + " " + chat.finish_reason());
-        updatedHistory[updatedHistory.length - 1].content += chunk;
-        setChatHistory([...updatedHistory]);
-        //await wait(10);
+        //console.log("chunk: " + chunk + " " + chat.finish_reason());
+        content += chunk;
+        setChatHistory((h) => {
+          const newHistory = [...h];
+          newHistory[newHistory.length - 1].content = content;
+          return newHistory;
+        });
       }
       console.log("Chat finished:", chat.finish_reason());
     } catch (error) {
       console.error(error);
-      updatedHistory[updatedHistory.length - 1].error = error.message;
-      setChatHistory([...updatedHistory]);
+      //updatedHistory[updatedHistory.length - 1].error = error.message;
+      setChatHistory((h) => {
+        const newHistory = [...h];
+        newHistory[newHistory.length - 1].error = error.message;
+        return newHistory;
+      });
     }
     setLoading(false);
     //setChatHistory([...updatedHistory, { role: "assistant", content: fullResponse }]);
   }
 
 
+  function handleStop() {
+    if (!loading) return;
+    if (!chatGenerator) return;
+    chatGenerator.abort();
+    setLoading(false);
+    setChatHistory((h) => {
+      const newHistory = [...h];
+      newHistory[newHistory.length - 1].error = "Generation aborted by user";
+      return newHistory;
+    });
+  }
+
+  function handleGenerate() {
+    //take last message content, delete last message and sendMessage(content)
+    const lastMessage = chatHistory[chatHistory.length - 1].content;
+    setChatHistory((h) => {
+      const newHistory = [...h];
+      newHistory.pop();
+      return newHistory;
+    });
+    sendMessage(lastMessage);
+
+
+  }
 
   function handleDelete(index) {
+
     const prevMessages = [...chatHistory]
     chatHistory.splice(index, 1);
     const nextMessages = [...chatHistory]
     setChatHistory(nextMessages);
+  }
+
+  function handleScroll(e) {
+    //check if scrollerRef is scrolled to bottom
+    // const scrollTop = scrollerRef.current.scrollTop;
+    // const scrollHeight = scrollerRef.current.scrollHeight;
+    // const clientHeight = scrollerRef.current.clientHeight;
+    // const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+    setIsAtBottom(scrollerRef.current.scrollTop > -80);
+    //console.log("isAtBottom", scrollerRef.current.scrollTop > -80);
+
   }
 
   return (
@@ -178,16 +187,46 @@ export default function OpenAIChatApp() {
         </div>
       </div >
 
-      <div ref={scrollerRef} className="flex-1 flex w-full flex-col-reverse overflow-auto items-stretch">
-        <div className="max-w-3xl w-full m-auto p-4 flex flex-col gap-4 flex-1">
-          <div className="text-xs p-2 bg-amber-400x opacity-25 text-center">chat #01</div>
+
+      <div ref={scrollerRef} className="flex-1 flex w-full flex-col-reverse overflow-auto items-stretch"
+        onScroll={handleScroll}>
+        <div className="max-w-3xl w-full m-auto p-4 xpy-0 flex flex-col gap-4 flex-1">
+
+          {/* <div className="p-2 xpx-3 pt-3 -mt-1 xring-2 ring-black/10 text-blue-500 xx/50 xbg-neutral-200/50 rounded-sm flex gap-1">
+            <div className="flex-1">Chat #00</div>
+            <Button>clear all</Button>
+          </div> */}
+
+
           <Messages messages={chatHistory} loadingIndex={loading ? chatHistory.length - 1 : -1} editingIndex={0} onDelete={handleDelete}></Messages>
-          <div className="text-xs p-2 opacity-25 text-center">3 messages, 55 bytes</div>
+
+          <Button
+            className="bottom-4 shadowx -my-7  shadow-black/10 sticky p-2 px-3 flex mx-auto
+            justify-center gap-1 rounded-full ring-6 w-fit self-end ring-black/10 bg-blue-500 text-white opacity-90 text-center"
+            hidden={isAtBottom} onClick={() => { scrollerRef.current.scrollTop = 0 }}>down</Button>
+
+          <Button
+            className="p-2 px-3 mx-4 my-1 flex justify-center gap-1 rounded-full ring-2 ring-neutral-200 bg-neutral-50 text-center"
+            hidden={!loading} onClick={handleStop}>stop</Button>
+          <Button
+            className="p-2 px-3 mx-4 my-1 flex justify-center gap-1 rounded-full ring-6 ring-black/5 bg-neutral-50 text-center"
+            hidden={lastMessage?.role !== "user"} onClick={handleGenerate}>regenerate</Button>
+
+
+
+          <div className="p-2 px-3 flex gap-1 text-neutral-500 text-xs text-center">
+            <div className="flex-1">
+              {chatHistory.length} messages, {chatSize} bytes
+            </div>
+
+          </div>
+          {/* <div className="bottom-0 xsticky bg-neutral-500 p-2 xh-0">scroll up</div> */}
         </div>
       </div>
 
-      <div className={"w-full bottom-0 transition-all sticky z-10 bg-white focus-within:ring-blue-300 focus-within:bg-blue-50 ring-2 ring-black/10 " +
+      <div className={"w-full flex flex-col  items-center bottom-0 transition-all sticky z-10 bg-white focus-within:ring-blue-300 focus-within:bg-blue-50 ring-2 ring-black/10 " +
         (false ? " translate-y-full opacity-0" : "translate-y-0 opacity-100")}>
+
         <SendForm message={""} active={!loading} onSend={sendMessage} />
       </div >
 

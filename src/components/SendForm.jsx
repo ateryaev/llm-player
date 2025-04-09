@@ -3,7 +3,7 @@ import { Button } from "./Button";
 import { Blink, CharSpinner } from "./Cursors";
 
 function SendForm({ message, active, onSend }) {
-    const [shownMessage, setShownMessage] = useState("What is AI?");
+    const [shownMessage, setShownMessage] = useState(message);
     const inputRef = useRef(null);
     const [focused, setFocused] = useState(false);
     useEffect(() => {
@@ -14,7 +14,7 @@ function SendForm({ message, active, onSend }) {
         //change inputRef placeholder value periodically
         let n = 0;
         if (focused) {
-            inputRef.current.placeholder = "Message";
+            inputRef.current.placeholder = "new message";
             return;
         }
 
@@ -22,8 +22,8 @@ function SendForm({ message, active, onSend }) {
             n++;
             let txt = "";
 
-            txt = "Message" + (n % 2 ? ". " : "  ");
-            //txt = (n % 2 ? "> " : "  ") + "Message" + (n % 2 ? " " : "");
+            txt = "new message" + (n % 2 ? ": " : "  ");
+            //txt = (n % 2 ? "> " : "  ") + "new message" + (n % 2 ? " " : "");
 
 
             if (inputRef.current) {
@@ -68,7 +68,7 @@ function SendForm({ message, active, onSend }) {
         shadow-lgx shadow-black/10
         xtext-blue-400"
 
-                placeholder="Message"
+                placeholder="new message"
                 value={shownMessage}
                 onFocus={handleFocus}
                 onBlur={handleBlur}

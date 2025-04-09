@@ -86,7 +86,7 @@ export function Config({ shown, defaultConfig, onChange }) {
                 <div className="p-4 xbg-red-100 xtext-blue-600 text-center font-bold">Configuration</div>
             </div>
 
-            <div className="flex max-w-3xl m-auto gap-2 flex-col p-4">
+            <div className="flex max-w-3xl m-auto gap-2 flex-col p-4 ">
 
 
                 <div className="">
@@ -97,14 +97,19 @@ export function Config({ shown, defaultConfig, onChange }) {
                         options={getEndpointNames()} />
                 </div>
 
-                <div className="p-2 px-3 opacity-70 text-xs bg-neutral-200 rounded-sm">
+                <div className="text-xs p-2 px-3 text-black/50 bg-neutral-200/50 rounded-sm">
                     {endpointInfo.about}
                 </div>
+                {/* 
+                <div className="pt-2 text-center opacity-50">***</div> */}
 
-                <div className="pt-2 text-center opacity-50">***</div>
 
+            </div>
+
+            <div className="border-b-2 border-dotted border-black/20"></div>
+
+            <div className="flex max-w-3xl m-auto gap-2 flex-col p-4">
                 <div className="">
-
                     <div className="p-2">Base URL</div>
                     <input className="transition-all p-2 px-3 outline-none  bg-white
     rounded-sm w-full 
@@ -149,8 +154,21 @@ export function Config({ shown, defaultConfig, onChange }) {
                         options={models.map((model) => model.name)} />}
                 </div>
 
+                <div className="">
+                    <div className="p-2">Prompt Template</div>
+                    <Select
+                        value={config.prompt}
+                        onChange={(value) => { setConfig({ ...config, prompt: value }) }}
+                        options={["Empty", "Llama 2", "Llama 3", "ChatML"]} />
+                </div>
 
-                <div className="pt-2 text-center opacity-50">***</div>
+
+            </div>
+
+            <div className="border-b-2 border-dotted border-black/20"></div>
+
+            <div className="flex max-w-3xl m-auto gap-2 flex-col p-4">
+
 
                 <div className="">
                     <div className="p-2 flex justify-between gap-1">
@@ -167,22 +185,34 @@ export function Config({ shown, defaultConfig, onChange }) {
                     </div>
                 </div>
 
+                <div className="">
+                    <div className="p-2 flex justify-between gap-1">
+                        <div className="flex-1">Max Tokens</div>
+                        <Button>add</Button><Button>dec</Button>
+                    </div>
+                    <div className="flex gap-2">
+                        <input className="transition-all p-2 px-3 outline-none  bg-white
+                        rounded-sm w-full flex-1
+                        ring-2 ring-neutral-200 focus:ring-blue-300 focus:bg-blue-50"
+                            value={config.maxTokens}
+                            onChange={(e) => { setConfig({ ...config, maxTokens: e.target.value }) }} />
+
+                    </div>
+                </div>
+
+
 
                 <div className="">
-                    <div className="p-2">Prompt Template</div>
-                    <Select
-                        value={config.prompt}
-                        onChange={(value) => { setConfig({ ...config, prompt: value }) }}
-                        options={["Empty", "Llama 2", "Llama 3", "ChatML"]} />
-                </div>
-                <div className="">
-                    <div className="p-2 px-3">Default System Prompt</div>
+                    <div className="p-2 flex justify-between gap-1">
+                        <div className="flex-1">System Prompt #01</div>
+                        <Button>&lt;&lt;&lt;</Button><Button>&gt;&gt;&gt;</Button>
+                    </div>
+                    {/* <div className="p-2 px-3">System Prompt <b className="text-blue-500 font-medium">#01</b></div> */}
                     <textarea className="p-2 px-3 rounded-sm transition-all outline-none gap-2 block w-full bg-white
                     ring-2 ring-neutral-200 focus:ring-blue-300 focus:bg-blue-50" rows={3}
                         value={config.systemPrompt}
                         onChange={(e) => { setConfig({ ...config, systemPrompt: e.target.value }) }} />
                 </div>
-
             </div>
             <div className="p-4 bg-white flex gap-4 justify-center bottom-0 sticky z-10 
             focus-within:ring-blue-300 focus-within:bg-blue-50

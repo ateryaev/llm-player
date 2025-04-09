@@ -23,8 +23,8 @@ class EchoApi {
             return { role: m.role, content: m.content };
         });
 
-        const lastMessage = messages[messages.length - 2].content;
-        console.log("lastMessage", messages[messages.length - 2]);
+        const lastMessage = messages[messages.length - 1].content;
+        console.log("lastMessage", messages[messages.length - 1]);
         return {
             finish_reason: () => finish_reason,
             read: async () => {

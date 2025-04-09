@@ -13,6 +13,7 @@ function Messages({ messages, loadingIndex, editingIndex, onDelete }) {
                     content={message.content}
                     error={message.error}
                     model={message.model}
+                    deleted={message.deleted}
                     loading={index === loadingIndex}
                     onDelete={() => { setSelectedIndex(-1); onDelete(index) }} />
             ))}

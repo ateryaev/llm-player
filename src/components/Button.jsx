@@ -18,7 +18,8 @@ export function Button({ children, disabled, hidden, className, onClick, ...prop
     function handleClick(e) {
         btnRef.current.blur();
         if (onClick) {
-            setTimeout(onClick, 10);
+            onClick();
+            //setTimeout(onClick, 10);
         }
     }
 

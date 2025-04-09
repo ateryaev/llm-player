@@ -9,11 +9,15 @@ import { BlinkingCursor, RotatingCursor } from "./Cursors";
 import { get_encoding } from "tiktoken";
 //import Tiktoken from "tiktoken/lite";
 
-export default function Message({ role, error, content, model, loading, state, selected, onDelete, ...props }) {
+export default function Message({ role, deleted, error, content, model, loading, state, selected, onDelete, ...props }) {
 
     const [copied, setCopied] = useState(false)
     const [editing, setEditing] = useState(false)
     const [tokenCount, setTokenCount] = useState(0);
+    const [deleteing, setDeleting] = useState(false);
+    const [focused, setFocused] = useState(false);
+
+    const divRef = useRef(null);
 
     const copyBtn = useRef(null);
     function handleCopy() {
@@ -33,9 +37,23 @@ export default function Message({ role, error, content, model, loading, state, s
     }, [role, content]);
 
 
-    function handleBlur() {
-
+    function handleBlur(e) {
+        console.log("handleBlur", e)
+        setFocused(false);
     }
+    function handleFocus() {
+        //console.log("handleFocus")
+        setFocused(true);
+    }
+
+    useEffect(() => {
+        if (!focused) {
+            const timer = setTimeout(() => {
+                setDeleting(false);
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [focused]);
 
     function handleEdit() {
 
@@ -45,12 +63,21 @@ export default function Message({ role, error, content, model, loading, state, s
     //roleClass = (role === "system" ? "rounded-t-sm " : roleClass);
     //+ (selected ? " ring-blue-300 bg-blue-50" : "ring-neutral-200 bg-white")
 
+    // if (deleted) {
+    //     return <div className="flex justify-between p-3 rounded-sm gap-0  group ring-2 outline-none ring-neutral-200 bg-white 
+    //     focus-within:ring-yellow-500 text-neutral-300 focus-within:bg-yellow-50 focus-within:text-yellow-500
+    //     "
+    //         tabIndex={0}>
+    //         <div className="flex-1 ">{role} message deleted</div>
+    //         <Button onClick={onDelete} className="group-focus-within:flex  hidden text-yellow-500">restore</Button>
+    //     </div>
+    // }
 
     return (
         <div className="flex flex-col p-1 rounded-sm gap-0  group ring-2 outline-none ring-neutral-200 bg-white 
         focus-within:ring-blue-300 focus-within:bg-blue-50"
-            tabIndex={0} {...props}>
-            <div className="flex gap-0 items-start text-blue-600 p-2">
+            tabIndex={0} {...props} ref={divRef} onBlur={handleBlur} onFocus={handleFocus}>
+            <div className="flex gap-0 items-start text-blue-600 p-2 py-1">
                 <div className="text-blue-600">
                     {role}
                     <div className="text-black opacity-50 text-xs">{model}</div>
@@ -61,14 +88,22 @@ export default function Message({ role, error, content, model, loading, state, s
                     </div>} */}
                 <div className="text-xs flex-1"></div>
                 <div className="gap-2 group-focus-within:flex  hidden ">
-                    {model && <Button onClick={onDelete}>
+                    {/* {model && <Button onClick={onDelete}>
                         refresh
                     </Button>}
                     <Button onClick={onDelete}>
                         edit
+                    </Button> */}
+
+                    <Button hidden={!deleteing} onClick={onDelete} className={"text-red-500"}>
+                        delete
                     </Button>
-                    <Button onClick={onDelete}>
-                        x
+                    <Button hidden={!deleteing} onClick={() => { setDeleting(false) }}>
+                        cancel
+                    </Button>
+
+                    <Button hidden={deleteing} onClick={() => { setDeleting(true); divRef.current?.focus(); }} >
+                        delete
                     </Button>
                     {/* <Button onClick={handleEdit}>edit</Button> */}
                     {/* <Button ref={copyBtn} disabled={copied} onClick={handleCopy}>{copied ? "done" : "copy"}</Button>
@@ -88,11 +123,11 @@ export default function Message({ role, error, content, model, loading, state, s
 
 
             </div>
-            {error && <div className="p-1 px-4 -mx-1 xrounded-xs text-xs text-white bg-red-300">{error}</div>}
-            {/* <div className="pxxx-1 xtext-xs text-red-400 xtext-white xbg-red-400 rounded-md">error</div> */}
+
 
             {
-                model && <div className="text-xs opacity-50 px-2 py-1">
+                model && <div className="text-xs text-neutral-500  px-2 py-1">
+                    {error && <div className="text-red-500">{error}</div>}
                     {tokenCount} tokens, 5s + 10s to generate</div>
             }
             {
