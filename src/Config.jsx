@@ -7,32 +7,6 @@ import { BlinkingCursor, CharSpinner } from "./components/Cursors";
 import { OpenAiApi } from "./utils/openai";
 import { getEndpointInfo, getEndpointNames } from "./utils/endpoints";
 
-// const endpoints = [
-//     {
-//         name: "built-in",
-//         implementation: new EchoApi(),
-//         baseUrlExample: "built-in",
-//         about: "Built-in models for testing purposes. Just repeating what you ask. Try different models for different behaviors."
-//     },
-//     {
-//         name: "OpenAI compatibility API",
-//         implementation: new OpenAiApi(),
-//         baseUrlExample: "http://localhost:1234/v1",
-//         about: "OpenAI compatibility API. Can be used for LM Studio or OLLAMA."
-//     }
-// ];
-
-// {
-//     endpoint: "built-in",
-//     baseUrl: "http://localhost:1234/v1",
-//     model: "echo-assistant-2",
-//     systemPrompt: "Response in English only.",
-//     apiKey: "YOUR_OPENAI_API_KEY",// Replace with your API key
-//     maxTokens: 200,
-//     temperature: 0.7,
-//     topP: 1,
-//   }
-
 export function Config({ shown, defaultConfig, onChange }) {
 
     const [config, setConfig] = useState(defaultConfig || {});
@@ -85,6 +59,7 @@ export function Config({ shown, defaultConfig, onChange }) {
             <div className="bg-white ring-2 ring-black/10">
                 <div className="p-4 xbg-red-100 xtext-blue-600 text-center font-bold">Configuration</div>
             </div>
+
 
             <div className="flex max-w-3xl m-auto gap-2 flex-col p-4 ">
 
@@ -194,8 +169,8 @@ export function Config({ shown, defaultConfig, onChange }) {
                         <input className="transition-all p-2 px-3 outline-none  bg-white
                         rounded-sm w-full flex-1
                         ring-2 ring-neutral-200 focus:ring-blue-300 focus:bg-blue-50"
-                            value={config.maxTokens}
-                            onChange={(e) => { setConfig({ ...config, maxTokens: e.target.value }) }} />
+                            value={config.max_tokens}
+                            onChange={(e) => { setConfig({ ...config, max_tokens: e.target.value }) }} />
 
                     </div>
                 </div>

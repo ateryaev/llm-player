@@ -67,7 +67,9 @@ function SendForm({ message, active, onSend }) {
         xring-2 ring-neutral-300 rounded-md
         shadow-lgx shadow-black/10
         xtext-blue-400"
-
+                name="message"
+                type="text"
+                autoComplete="off"
                 placeholder="new message"
                 value={shownMessage}
                 onFocus={handleFocus}

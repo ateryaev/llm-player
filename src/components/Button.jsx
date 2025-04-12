@@ -33,7 +33,6 @@ export function Button({ children, disabled, hidden, className, onClick, ...prop
             <span className="xgroup-focus:font-bold xgroup-focus:underline">{children}</span>
             <span className="group-focus/btn:inline-block hidden"><CharSpinner chars={" ]"} /></span>
             <span className="group-focus/btn:hidden inline-block">]</span>
-
         </button>
     )
 }

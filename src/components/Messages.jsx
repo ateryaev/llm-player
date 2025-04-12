@@ -8,12 +8,15 @@ function Messages({ messages, loadingIndex, editingIndex, onDelete }) {
         <>
             {messages.map((message, index) => (
                 <Message key={index}
+                    index={index}
+                    data={message}
                     selected={selectedIndex === index}
                     role={message.role}
                     content={message.content}
                     error={message.error}
                     model={message.model}
                     deleted={message.deleted}
+                    createdOn={message.createdOn}
                     loading={index === loadingIndex}
                     onDelete={() => { setSelectedIndex(-1); onDelete(index) }} />
             ))}

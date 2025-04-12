@@ -37,7 +37,7 @@ export function Select({ value, onChange, options }) {
 
     return (
         <>
-            <div className="relative outline-none cursor-pointer w-full flex flex-col gap-1 group"
+            <div className="relative outline-none cursor-pointer xw-full flex flex-col gap-1 group"
                 ref={dropdownRef} tabIndex={0}>
 
                 <div className={"group-focus:invisible rounded-sm p-2 px-3 ring-2 ring-neutral-200 bg-white flex gap-2 justify-between items-center " + (!isValidValue && "bg-red-100")}>

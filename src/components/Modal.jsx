@@ -10,10 +10,13 @@ const Modal = ({ isOpen, onClose, children }) => {
       dialogRef.current.focus();
       //setTimeout(() => { dialogRef.current.focus(); }, 0);
     } else {
-      dialogRef.current.close();
+      //dialogRef.current.close();
     }
   }, [isOpen]);
 
+  if (!isOpen) {
+    return null; // Don't render anything if not open
+  }
   return (
     <dialog ref={dialogRef} onClose={onClose}
       className="select-none outline-none p-0 no-scrollbar max-h-[80dvh]

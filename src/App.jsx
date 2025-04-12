@@ -21,13 +21,15 @@ const echoApi = new EchoApi();
 export default function OpenAIChatApp() {
   const scrollerRef = useRef(null);
   const [showConfig, setShowConfig] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
   //const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
   const [scrollBottom, setScrollBottom] = useState(0);
   const [chatGenerator, setChatGenerator] = useState(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [isAtTop, setIsAtTop] = useState(true);
 
-  //const [models, setModels] = useState([]);
-  //const [selectedModel, setSelectedModel] = useState("echo-assistant-1");
+  const [loading, setLoading] = useState(true);
+  const [chatHistory, setChatHistory] = useState([]);
 
   const [config, setConfig] = useState({
     endpoint: "built-in",
@@ -35,9 +37,9 @@ export default function OpenAIChatApp() {
     model: "echo-assistant-2",
     systemPrompt: "Response in English only.",
     apiKey: "YOUR_OPENAI_API_KEY",// Replace with your API key
-    maxTokens: 200,
+    max_tokens: 200,
     temperature: 0.7,
-    topP: 1,
+    top_p: 1,
   });
 
 
@@ -55,21 +57,24 @@ export default function OpenAIChatApp() {
   useEffect(() => {
     //load config from local storage
     const savedConfig = localStorage.getItem("config");
+    const savedChat = localStorage.getItem("chat");
+    if (savedChat) {
+      setChatHistory(JSON.parse(savedChat));
+    }
     if (savedConfig) {
       setConfig(JSON.parse(savedConfig));
     }
+    setLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (loading) return;
+    console.log("chatHistory changed for saving", chatHistory);
+    localStorage.setItem("chat", JSON.stringify(chatHistory));
+  }, [chatHistory, loading]);
 
-  const [loading, setLoading] = useState(false);
 
-  const [chatHistory, setChatHistory] = useState([
-    // { role: "system", content: "Response in English only." },
-    { role: "user", content: "What is AI?" },
-    { role: "assistant", model: "start-up-model", error: "Connection timeout", content: "AI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\n" },
-    { role: "user", deleted: true, content: "AI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\n" },
-    { role: "assistant", model: "start-up-model", content: "AI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\nAI is the simulation of human intelligence in machines.\n" },
-  ]);
+
 
   const chatSize = useMemo(() => {
     let size = 0;
@@ -94,10 +99,11 @@ export default function OpenAIChatApp() {
 
     const api = getEndpointInfo(config.endpoint).implementation;
     console.log("api", messagesForApi);
-    const chat = api.continueChat(config.baseUrl, config.model, messagesForApi, { max_tokens: 200 });
+    const chat = api.continueChat(config.baseUrl, config.model, messagesForApi, { max_tokens: config.max_tokens, temperature: config.temperature, top_p: config.top_p });
     setChatGenerator(chat);
 
-    setChatHistory((h) => [...h, { role: "user", content: msg }, { role: "assistant", model: config.model, content: "" }]);
+    setChatHistory((h) => [...h, { role: "user", content: msg, createdOn: new Date().getTime() },
+    { role: "assistant", model: config.model, content: "", createdOn: new Date().getTime() }]);
     await wait(200);
 
     try {
@@ -108,7 +114,11 @@ export default function OpenAIChatApp() {
         content += chunk;
         setChatHistory((h) => {
           const newHistory = [...h];
+          if (newHistory[newHistory.length - 1].content === "" && chunk !== "") {
+            newHistory[newHistory.length - 1].firstCharOn = new Date().getTime();
+          }
           newHistory[newHistory.length - 1].content = content;
+          newHistory[newHistory.length - 1].finishedOn = new Date().getTime();
           return newHistory;
         });
       }
@@ -122,10 +132,21 @@ export default function OpenAIChatApp() {
         return newHistory;
       });
     }
+
+    setChatHistory((h) => {
+      const newHistory = [...h];
+      if (!newHistory[newHistory.length - 1].firstCharOn)
+        newHistory[newHistory.length - 1].firstCharOn = new Date().getTime();
+      newHistory[newHistory.length - 1].finishedOn = new Date().getTime();
+      //localStorage.setItem("chat", JSON.stringify(newHistory));
+      return newHistory;
+    });
+
+
+
     setLoading(false);
     //setChatHistory([...updatedHistory, { role: "assistant", content: fullResponse }]);
   }
-
 
   function handleStop() {
     if (!loading) return;
@@ -167,8 +188,17 @@ export default function OpenAIChatApp() {
     // const clientHeight = scrollerRef.current.clientHeight;
     // const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
     setIsAtBottom(scrollerRef.current.scrollTop > -80);
+    //setIsAtTop(scrollerRef.current.scrollTop < 0);
+    setIsAtTop(scrollerRef.current.scrollHeight - scrollerRef.current.clientHeight + scrollerRef.current.scrollTop < 80);
+    //console.log("isAtTop", scrollerRef.current.scrollTop, scrollerRef.current.scrollHeight, scrollerRef.current.clientHeight);
     //console.log("isAtBottom", scrollerRef.current.scrollTop > -80);
 
+  }
+
+
+  function handleClearAll() {
+    setChatHistory([]);
+    setShowWarning(false);
   }
 
   return (
@@ -180,10 +210,12 @@ export default function OpenAIChatApp() {
           {config.endpoint === "built-in" ? "built-in" : config.baseUrl}
         </div>
         <div className="px-4 m-auto max-w-3xl text-whitex  flex gap-2 items-end">
-          <div className="flex-1 font-boldx text-ellipsis whitespace-nowrap">
+          <div className="flex-1 text-ellipsis whitespace-nowrap overflow-hidden">
             {config.model}
           </div>
-          <Button className={"text-whitex"} onClick={() => setShowConfig(true)}>config</Button>
+          <Button className={"text-whitex hiddenx"} onClick={() => setShowConfig(true)}>config</Button>
+
+
         </div>
       </div >
 
@@ -197,29 +229,41 @@ export default function OpenAIChatApp() {
             <Button>clear all</Button>
           </div> */}
 
+          {/* <Button
+            className="p-2 px-4 my-1 w-fit mx-auto rounded-full ring-6 ring-black/5 bg-blue-50"
+            hidden={chatHistory.length < 2} onClick={handleClearAll}>clear all</Button>
+
+          <Button
+            className="top-4 shadowx -my-7  shadow-black/10 sticky p-2 px-4 flex mx-auto
+            justify-center gap-1 rounded-full ring-6 w-fit  ring-black/10 bg-blue-500 text-white opacity-90 text-center"
+            hidden={isAtTop || !isAtBottom} onClick={() => { scrollerRef.current.scrollTop = -scrollerRef.current.scrollHeight }}>up</Button> */}
 
           <Messages messages={chatHistory} loadingIndex={loading ? chatHistory.length - 1 : -1} editingIndex={0} onDelete={handleDelete}></Messages>
 
           <Button
-            className="bottom-4 shadowx -my-7  shadow-black/10 sticky p-2 px-3 flex mx-auto
-            justify-center gap-1 rounded-full ring-6 w-fit self-end ring-black/10 bg-blue-500 text-white opacity-90 text-center"
+            className="bottom-4 shadowx -my-7  shadow-black/10 sticky p-2 px-4 flex mx-auto
+            justify-center gap-1 rounded-full ring-6 w-fit  ring-black/10 bg-blue-500 text-white opacity-90 text-center"
             hidden={isAtBottom} onClick={() => { scrollerRef.current.scrollTop = 0 }}>down</Button>
 
           <Button
-            className="p-2 px-3 mx-4 my-1 flex justify-center gap-1 rounded-full ring-2 ring-neutral-200 bg-neutral-50 text-center"
+            className="p-2 px-4 my-1 w-fit mx-auto rounded-full ring-6 ring-black/5 bg-blue-50"
             hidden={!loading} onClick={handleStop}>stop</Button>
           <Button
-            className="p-2 px-3 mx-4 my-1 flex justify-center gap-1 rounded-full ring-6 ring-black/5 bg-neutral-50 text-center"
-            hidden={lastMessage?.role !== "user"} onClick={handleGenerate}>regenerate</Button>
+            className="p-2 px-4 my-1 w-fit mx-auto rounded-full ring-6 ring-black/5 bg-blue-50"
+            hidden={lastMessage?.role !== "user"} onClick={handleGenerate}>generate response</Button>
 
 
-
-          <div className="p-2 px-3 flex gap-1 text-neutral-500 text-xs text-center">
-            <div className="flex-1">
-              {chatHistory.length} messages, {chatSize} bytes
-            </div>
+          <div className="p-0 px-0 pl-4x flex flex-coxl gap-1 text-neutral-500 text-xs xtext-center justify-center">
+            {chatSize > 0 && <div className="flex gap-1">
+              {chatSize} bytes
+              <Button hiddenx={chatHistory.length < 2} onClick={() => { setShowWarning(true); }}>clear all</Button>
+            </div>}
+            {chatSize === 0 && <div className="flex gap-1">
+              no messages yet
+            </div>}
 
           </div>
+
           {/* <div className="bottom-0 xsticky bg-neutral-500 p-2 xh-0">scroll up</div> */}
         </div>
       </div>
@@ -228,10 +272,33 @@ export default function OpenAIChatApp() {
         (false ? " translate-y-full opacity-0" : "translate-y-0 opacity-100")}>
 
         <SendForm message={""} active={!loading} onSend={sendMessage} />
+
       </div >
+      <div className="text-xs w-full text-center text-neutral-500 xbg-neutral-300 p-4 flex gap-2 justify-center items-center">
+        LLM-Player v1.0,
+        <a href="https://github.com/ateryaev/llm-player" className="underline" target="_blank">github.com</a>
+      </div>
+
 
       <Config shown={showConfig} defaultConfig={config} onChange={handleConfigChange} />
 
+      <Modal isOpen={showWarning} onClose={() => { setShowWarning(false); }}>
+
+        <div className="bg-white ring-2 ring-black/10">
+          <div className="p-4 xbg-red-100 xtext-blue-600 text-center font-bold">Warning</div>
+        </div>
+        <div className="flex max-w-3xl m-auto gap-2 flex-col p-4 text-center">
+          Are you sure to delete all messages from this chat?
+        </div>
+
+        <div className="p-4 bg-white flex gap-4 justify-center bottom-0 sticky z-10 
+            focus-within:ring-blue-300 focus-within:bg-blue-50
+            ring-2 ring-black/10
+            ">
+          <Button className={"lowercase"} onClick={handleClearAll}>clear all</Button>
+          <Button className={"font-boldx lowercase"} onClick={() => { setShowWarning(false); }} autofocus>Cancel</Button>
+        </div>
+      </Modal>
     </>
   );
 }
