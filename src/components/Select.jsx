@@ -1,54 +1,29 @@
-import { useEffect, useRef, useState } from "react";
-import { Button } from "./Button";
+import { useRef } from "react";
 
 export function Select({ value, onChange, options }) {
 
-    const [isOpen, setIsOpen] = useState(false);
     const allRef = useRef(null);
-
     const isValidValue = options.includes(value);
 
     const dropdownRef = useRef(null);
-    function handleChange(e) {
-        setIsOpen(!isOpen);
-        setTimeout(() => {
-            e.target.blur();
-        }, 0);
-    }
 
     function handleClick(option) {
-        setIsOpen(false);
         onChange(option);
         dropdownRef.current.blur();
     }
 
-    const handleClickOutside = (event) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-            setIsOpen(false);
-        }
-    };
-
-
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
     return (
         <>
-            <div className="relative outline-none cursor-pointer xw-full flex flex-col gap-1 group"
+            <div className="relative outline-none cursor-pointer flex flex-col gap-1 group"
                 ref={dropdownRef} tabIndex={0}
                 onFocus={(e) => {
                     window.setTimeout(() => {
                         allRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
-                    }
-                        , 0);
+                    }, 0);
                 }}>
 
                 <div className={"group-focus:invisible rounded-sm p-2 px-3 ring-2 ring-neutral-200 bg-white flex gap-2 justify-between items-center " + (!isValidValue && "bg-red-100")}>
-                    <div className={!isValidValue && "text-red-500x"}>
+                    <div>
                         {value}&nbsp;
                     </div>
                     <div>[+]</div>

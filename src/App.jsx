@@ -6,7 +6,6 @@ import { wait } from "./utils/helpers";
 import { Button } from "./components/Button";
 import { Config } from "./Config";
 import { getEndpointInfo } from "./utils/endpoints";
-import { applyPromptTemplate } from "./utils/promptTemplate";
 
 export default function OpenAIChatApp() {
   const scrollerRef = useRef(null);
@@ -23,18 +22,15 @@ export default function OpenAIChatApp() {
     baseUrl: "http://localhost:1234/v1",
     model: "echo-assistant-2",
     systemPrompt: "Response in English only.",
-    apiKey: "YOUR_OPENAI_API_KEY",// Replace with your API key
+    apiKey: "YOUR_API_KEY",// Replace with your API key
     maxTokens: 200,
-    temperature: 0.7,
-    topP: 1,
+    temperature: 0.7
   });
 
   function handleConfigChange(newConfig) {
     console.log("handleConfigChange", newConfig);
-    //setConfig(newConfig);
     if (newConfig) {
       setConfig(newConfig);
-      //save config to local storage
       localStorage.setItem("config", JSON.stringify(newConfig));
     }
     setShowConfig(false);
@@ -59,9 +55,6 @@ export default function OpenAIChatApp() {
     localStorage.setItem("chat", JSON.stringify(chatHistory));
   }, [chatHistory, loading]);
 
-
-
-
   const chatSize = useMemo(() => {
     let size = 0;
     chatHistory.forEach((m) => {
@@ -77,8 +70,6 @@ export default function OpenAIChatApp() {
 
   async function sendMessage(msg) {
 
-    // console.log("sendMessage", config);
-    // return;
     scrollerRef.current && (scrollerRef.current.scrollTop = scrollerRef.current.scrollHeight);
 
     setLoading(true);
@@ -107,7 +98,6 @@ export default function OpenAIChatApp() {
       let chunk = "";
       let content = "";
       while ((chunk = await chat.read()) !== false) {
-        //console.log("chunk: " + chunk + " " + chat.finish_reason());
         content += chunk;
         setChatHistory((h) => {
           const newHistory = [...h];
@@ -123,7 +113,7 @@ export default function OpenAIChatApp() {
       console.log("Chat finished:", chat.finish_reason());
     } catch (error) {
       console.error(error);
-      //updatedHistory[updatedHistory.length - 1].error = error.message;
+
       setChatHistory((h) => {
         const newHistory = [...h];
         newHistory[newHistory.length - 1].error = error.message;
@@ -137,14 +127,10 @@ export default function OpenAIChatApp() {
       if (!newHistory[newHistory.length - 1].firstCharOn)
         newHistory[newHistory.length - 1].firstCharOn = new Date().getTime();
       newHistory[newHistory.length - 1].finishedOn = new Date().getTime();
-      //localStorage.setItem("chat", JSON.stringify(newHistory));
       return newHistory;
     });
 
-
-
     setLoading(false);
-    //setChatHistory([...updatedHistory, { role: "assistant", content: fullResponse }]);
   }
 
   function handleStop() {
@@ -168,32 +154,17 @@ export default function OpenAIChatApp() {
       return newHistory;
     });
     sendMessage(lastMessage);
-
-
   }
 
   function handleDelete(index) {
-
-    const prevMessages = [...chatHistory]
     chatHistory.splice(index, 1);
     const nextMessages = [...chatHistory]
     setChatHistory(nextMessages);
   }
 
-  function handleScroll(e) {
-    //check if scrollerRef is scrolled to bottom
-    // const scrollTop = scrollerRef.current.scrollTop;
-    // const scrollHeight = scrollerRef.current.scrollHeight;
-    // const clientHeight = scrollerRef.current.clientHeight;
-    // const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+  function handleScroll() {
     setIsAtBottom(scrollerRef.current.scrollTop > -80);
-    //setIsAtTop(scrollerRef.current.scrollTop < 0);
-    //setIsAtTop(scrollerRef.current.scrollHeight - scrollerRef.current.clientHeight + scrollerRef.current.scrollTop < 80);
-    //console.log("isAtTop", scrollerRef.current.scrollTop, scrollerRef.current.scrollHeight, scrollerRef.current.clientHeight);
-    //console.log("isAtBottom", scrollerRef.current.scrollTop > -80);
-
   }
-
 
   function handleClearAll() {
     setChatHistory([]);
@@ -202,7 +173,6 @@ export default function OpenAIChatApp() {
 
   return (
     <>
-      {/* <Header url={baseURL} model={selectedModel} /> */}
       <div className="bg-white neutral-200 py-4 w-full top-0 sticky z-10 ring-2 ring-black/10">
 
         <div className="px-4 m-auto overflow-hidden max-w-3xl opacity-50 text-ellipsis whitespace-nowrap text-xs">
@@ -212,12 +182,10 @@ export default function OpenAIChatApp() {
           <div className="flex-1 text-ellipsis whitespace-nowrap overflow-hidden">
             {config.model}
           </div>
-          <Button className={"text-whitex hiddenx"} onClick={() => setShowConfig(true)}>config</Button>
-
+          <Button onClick={() => setShowConfig(true)}>config</Button>
 
         </div>
       </div >
-
 
       <div ref={scrollerRef} className="flex-1 flex w-full flex-col-reverse overflow-auto items-stretch"
         onScroll={handleScroll}>
@@ -237,18 +205,16 @@ export default function OpenAIChatApp() {
             className="p-2 px-4 my-1 w-fit mx-auto rounded-full ring-6 ring-black/5 bg-blue-50"
             hidden={lastMessage?.role !== "user"} onClick={handleGenerate}>generate response</Button>
 
-
           <div className="flex flex-coxl gap-1 text-neutral-500 text-xs xtext-center justify-center">
             {chatSize > 0 && <div className="flex gap-1">
               {chatSize} bytes
-              <Button hiddenx={chatHistory.length < 2} onClick={() => { setShowWarning(true); }}>clear all</Button>
+              <Button onClick={() => { setShowWarning(true); }}>clear all</Button>
             </div>}
             {chatSize === 0 && <div className="flex gap-1">
               no messages yet
             </div>}
           </div>
 
-          {/* <div className="bottom-0 xsticky bg-neutral-500 p-2 xh-0">scroll up</div> */}
         </div>
       </div>
 

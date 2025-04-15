@@ -19,13 +19,12 @@ export function Button({ children, disabled, hidden, className, onClick, ...prop
         btnRef.current.blur();
         if (onClick) {
             onClick();
-            //setTimeout(onClick, 10);
         }
     }
 
     return (
         <button ref={btnRef} className={`whitespace-nowrap text-nowrap text-blue-500 select-none outline-none 
-            active:xxbg-blue-300 cursor-pointer group/btn p-1x hover:font-bold active:font-bold
+            cursor-pointer group/btn hover:font-bold active:font-bold
             focus:font-bold ${className}`}
             {...props} onClick={handleClick}>
             <span className="group-focus/btn:inline-block hidden"><CharSpinner chars={" ["} /></span>
@@ -36,4 +35,3 @@ export function Button({ children, disabled, hidden, className, onClick, ...prop
         </button>
     )
 }
-

@@ -78,9 +78,8 @@ export function Config({ shown, defaultConfig, onChange }) {
             <div className="flex max-w-3xl m-auto gap-2 flex-col p-4">
                 <div className="">
                     <div className="p-2">Base URL</div>
-                    <input className="transition-all p-2 px-3 outline-none  bg-white
-    rounded-sm w-full 
-    ring-2 ring-neutral-200 focus:ring-blue-300 focus:bg-blue-50"
+                    <input className="transition-all p-2 px-3 outline-none bg-white
+                        rounded-sm w-full ring-2 ring-neutral-200 focus:ring-blue-300 focus:bg-blue-50"
                         value={config.baseUrl}
                         onChange={(e) => { setConfig({ ...config, baseUrl: e.target.value }) }} />
                 </div>
@@ -129,7 +128,6 @@ export function Config({ shown, defaultConfig, onChange }) {
                         options={PROMPT_TEMPLATES.map(p => p.name)} />
                 </div> */}
 
-
             </div>
 
             <div className="border-b-2 border-dotted border-black/20"></div>
@@ -166,8 +164,6 @@ export function Config({ shown, defaultConfig, onChange }) {
                     </div>
                 </div>
 
-
-
                 <div className="">
                     <div className="p-2 flex justify-between gap-1">
                         <div className="flex-1">System Prompt</div>
@@ -186,9 +182,6 @@ export function Config({ shown, defaultConfig, onChange }) {
                     github.com/ateryaev/llm-player
                 </div>
             </div>
-
-
-
         </Modal >
     );
 }

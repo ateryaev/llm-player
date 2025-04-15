@@ -1,3 +1,4 @@
+// not in use
 export const PROMPT_TEMPLATES = [
     {
         name: "Empty",
