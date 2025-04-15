@@ -4,6 +4,7 @@ import { Button } from "./Button";
 export function Select({ value, onChange, options }) {
 
     const [isOpen, setIsOpen] = useState(false);
+    const allRef = useRef(null);
 
     const isValidValue = options.includes(value);
 
@@ -38,7 +39,13 @@ export function Select({ value, onChange, options }) {
     return (
         <>
             <div className="relative outline-none cursor-pointer xw-full flex flex-col gap-1 group"
-                ref={dropdownRef} tabIndex={0}>
+                ref={dropdownRef} tabIndex={0}
+                onFocus={(e) => {
+                    window.setTimeout(() => {
+                        allRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                    }
+                        , 0);
+                }}>
 
                 <div className={"group-focus:invisible rounded-sm p-2 px-3 ring-2 ring-neutral-200 bg-white flex gap-2 justify-between items-center " + (!isValidValue && "bg-red-100")}>
                     <div className={!isValidValue && "text-red-500x"}>
@@ -47,8 +54,8 @@ export function Select({ value, onChange, options }) {
                     <div>[+]</div>
                 </div>
 
-                <div
-                    className="absolute z-20 ring-2 group ring-blue-400 h-fit group-focus:flex hidden bg-white p-0 max-h-52 
+                <div ref={allRef}
+                    className="absolute scroll-m-4 z-20 ring-2 group ring-blue-400 h-fit group-focus:flex hidden bg-white p-0 max-h-52 
                         inset-0 cursor-pointer overflow-auto rounded-sm shadow-lg shadow-black/20  flex-col gap-0 justify-between items-stretch">
                     <div
                         onClick={() => handleClick(value)}

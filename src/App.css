@@ -4,41 +4,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap');
 
 html {
-  xxfont-weight: 500;
-  xxfont-family: Fredoka, Verdana, Geneva, Tahoma, sans-serif;
   touch-action: manipulation;
   font-family: monospace, Courier, 'Courier New';
-
   font-size: 14px;
-  xline-height: 16px;
-}
-
-@viewport {
-  viewport-fit: contain;
-}
-
-html * {
-  overflow-anchor: none;
-}
-
-#anchor {
-  overflow-anchor: auto;
-  height: 1px;
+  padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
 }
 
 dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.0);
 }
 
-dialog {
-  /*slide from top animation*/
-  animation: slideIn 0.3s ease-in-out;
+@keyframes reveiling {
+  0% {
+    opacity: 0.0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes slideIn {
   0% {
     transform: translateY(-100%);
-    opacity: 0;
+    opacity: 0.9;
   }
 
   100% {

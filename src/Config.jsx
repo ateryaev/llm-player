@@ -2,10 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import Modal from "./components/Modal";
 import { Select } from "./components/Select";
 import { Button } from "./components/Button";
-import EchoApi from "./utils/echo";
-import { BlinkingCursor, CharSpinner } from "./components/Cursors";
-import { OpenAiApi } from "./utils/openai";
+import { CharSpinner } from "./components/Cursors";
 import { getEndpointInfo, getEndpointNames } from "./utils/endpoints";
+import { PROMPT_TEMPLATES } from "./utils/promptTemplate";
 
 export function Config({ shown, defaultConfig, onChange }) {
 
@@ -54,15 +53,12 @@ export function Config({ shown, defaultConfig, onChange }) {
         onChange(config);
     }
 
+
     return (
-        <Modal isOpen={shown} onClose={handleCancel}>
-            <div className="bg-white ring-2 ring-black/10">
-                <div className="p-4 xbg-red-100 xtext-blue-600 text-center font-bold">Configuration</div>
-            </div>
+        <Modal isOpen={shown} onClose={handleCancel} title={"Config"} actionName={"Apply"} onAction={handleApply}>
 
 
             <div className="flex max-w-3xl m-auto gap-2 flex-col p-4 ">
-
 
                 <div className="">
                     <div className="p-2">Endpoint Type</div>
@@ -75,10 +71,6 @@ export function Config({ shown, defaultConfig, onChange }) {
                 <div className="text-xs p-2 px-3 text-black/50 bg-neutral-200/50 rounded-sm">
                     {endpointInfo.about}
                 </div>
-                {/* 
-                <div className="pt-2 text-center opacity-50">***</div> */}
-
-
             </div>
 
             <div className="border-b-2 border-dotted border-black/20"></div>
@@ -129,13 +121,13 @@ export function Config({ shown, defaultConfig, onChange }) {
                         options={models.map((model) => model.name)} />}
                 </div>
 
-                <div className="">
+                {/* <div className="">
                     <div className="p-2">Prompt Template</div>
                     <Select
-                        value={config.prompt}
-                        onChange={(value) => { setConfig({ ...config, prompt: value }) }}
-                        options={["Empty", "Llama 2", "Llama 3", "ChatML"]} />
-                </div>
+                        value={config.promptTemplate}
+                        onChange={(value) => { setConfig({ ...config, promptTemplate: value }) }}
+                        options={PROMPT_TEMPLATES.map(p => p.name)} />
+                </div> */}
 
 
             </div>
@@ -156,7 +148,6 @@ export function Config({ shown, defaultConfig, onChange }) {
                         ring-2 ring-neutral-200 focus:ring-blue-300 focus:bg-blue-50"
                             value={config.temperature}
                             onChange={(e) => { setConfig({ ...config, temperature: e.target.value }) }} />
-
                     </div>
                 </div>
 
@@ -169,8 +160,8 @@ export function Config({ shown, defaultConfig, onChange }) {
                         <input className="transition-all p-2 px-3 outline-none  bg-white
                         rounded-sm w-full flex-1
                         ring-2 ring-neutral-200 focus:ring-blue-300 focus:bg-blue-50"
-                            value={config.max_tokens}
-                            onChange={(e) => { setConfig({ ...config, max_tokens: e.target.value }) }} />
+                            value={config.maxTokens}
+                            onChange={(e) => { setConfig({ ...config, maxTokens: e.target.value }) }} />
 
                     </div>
                 </div>
@@ -179,23 +170,25 @@ export function Config({ shown, defaultConfig, onChange }) {
 
                 <div className="">
                     <div className="p-2 flex justify-between gap-1">
-                        <div className="flex-1">System Prompt #01</div>
-                        <Button>&lt;&lt;&lt;</Button><Button>&gt;&gt;&gt;</Button>
+                        <div className="flex-1">System Prompt</div>
                     </div>
-                    {/* <div className="p-2 px-3">System Prompt <b className="text-blue-500 font-medium">#01</b></div> */}
                     <textarea className="p-2 px-3 rounded-sm transition-all outline-none gap-2 block w-full bg-white
                     ring-2 ring-neutral-200 focus:ring-blue-300 focus:bg-blue-50" rows={3}
+                        onFocus={(e) => {
+                            e.target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                        }}
                         value={config.systemPrompt}
                         onChange={(e) => { setConfig({ ...config, systemPrompt: e.target.value }) }} />
                 </div>
+                <div className="p-2 text-center text-neutral-500 text-xs">
+                    LLM-Player by Anton Teryaev, 2025
+                    <br />
+                    github.com/ateryaev/llm-player
+                </div>
             </div>
-            <div className="p-4 bg-white flex gap-4 justify-center bottom-0 sticky z-10 
-            focus-within:ring-blue-300 focus-within:bg-blue-50
-            ring-2 ring-black/10
-            ">
-                <Button className={"lowercase"} onClick={handleApply}>Apply</Button>
-                <Button className={"font-boldx lowercase"} onClick={handleCancel} autofocus>Cancel</Button>
-            </div>
-        </Modal>
+
+
+
+        </Modal >
     );
 }

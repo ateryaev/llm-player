@@ -100,7 +100,7 @@ export default function Message({ index, role, deleted, createdOn, error, conten
     // }
 
     return (
-        <div className="flex flex-col p-1 rounded-sm gap-0  group ring-2 outline-none ring-neutral-200 bg-white 
+        <div className="flex flex-col p-1 rounded-sm gap-0  group ring-2 outline-none ring-black/10 bg-white 
         focus-within:ring-blue-300 focus-within:bg-blue-50"
             tabIndex={0} {...props} ref={divRef} onBlur={handleBlur} onFocus={handleFocus}>
 
@@ -149,6 +149,7 @@ export default function Message({ index, role, deleted, createdOn, error, conten
                     {error && <div className="text-red-500">{error}</div>}
                     {bytes} bytes
                     {data.firstCharOn && data.finishedOn && data.createdOn && <>, {timeDiffTxt(data.firstCharOn - data.createdOn)} + {timeDiffTxt(data.finishedOn - data.firstCharOn)} to finish</>}
+                    , reason {data.finishReason}
                 </div>
             }
             {

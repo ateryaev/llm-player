@@ -1,4 +1,6 @@
-export default async function loadModelList(url, authKey = "") {
+import { applyPromptTemplate } from "./promptTemplate";
+
+async function loadModelList(url, authKey = "") {
 
     const res = await fetch(`${url}/models`, {
         headers: authKey ? { Authorization: `Bearer ${authKey}` } : {},
@@ -20,26 +22,26 @@ export default async function loadModelList(url, authKey = "") {
 
 }
 
-export function continueChat(url, modelName, messages, parameters, authKey = "") {
+function continueChat(url, modelName, messages, config, authKey = "") {
     const controller = new AbortController();
     const { signal } = controller;
     const decoder = new TextDecoder("utf-8");
-    /*prompt: undefined,
-      model: 'cydonia-24b-v2.1',
-      temperature: 1,
-      max_tokens: 300,
-      max_completion_tokens: undefined,
-      stream: true,
-      presence_penalty: 0,
-      frequency_penalty: 1.12,
-      top_p: 1,
-      top_k: undefined,
-      stop: undefined,
-      logit_bias: undefined,
-      seed: undefined,
-      n: undefined,
-      logprobs: undefined,
-      top_logprobs: undefined*/
+
+
+    let params = {};
+    if (config.maxTokens) params.max_tokens = config.maxTokens;
+    if (config.topP) params.top_p = config.topP;
+    if (config.temperature) params.temperature = config.temperature;
+
+    if (config.systemPrompt) {
+        messages.unshift({ role: "system", content: config.systemPrompt });
+    }
+
+    if (config.promptTemplate) {
+        messages = applyPromptTemplate(messages, config.promptTemplate);
+        console.log("Messages after applying template:", messages);
+    }
+
     const stream = fetch(`${url}/chat/completions`, {
         method: "POST",
         headers: {
@@ -50,10 +52,8 @@ export function continueChat(url, modelName, messages, parameters, authKey = "")
         body: JSON.stringify({
             messages,
             stream: true,
-            temperature: 1,
-            top_p: 1,
             model: modelName,
-            ...parameters,
+            ...params,
         }),
         signal,
     });
