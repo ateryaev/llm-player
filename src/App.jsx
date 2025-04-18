@@ -11,21 +11,54 @@ export default function OpenAIChatApp() {
   const scrollerRef = useRef(null);
   const [showConfig, setShowConfig] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
-  const [chatGenerator, setChatGenerator] = useState(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
-
   const [loading, setLoading] = useState(true);
   const [chatHistory, setChatHistory] = useState([]);
 
   const [config, setConfig] = useState({
+
     endpoint: "built-in",
     baseUrl: "http://localhost:1234/v1",
     model: "echo-assistant-2",
     systemPrompt: "Response in English only.",
-    apiKey: "YOUR_API_KEY",// Replace with your API key
+    headers: '"api-key": "my_api_key",\n"workspacename": "my_workspace_name"',
     maxTokens: 200,
-    temperature: 0.7
+    temperature: 0.7,
+
   });
+
+  const cfg = {
+    current: "build-in",
+    endpoints: {
+      "built-in": {
+        model: "built-in-story-teller"
+      },
+      "ollama-lm-studio": {
+        baseUrl: "http://localhost:1234/v1",
+        systemPrompt: "Response in English only.",
+        maxTokens: 500,
+        temperature: 0.8
+      },
+      "custom-openai-compatible": {
+        baseUrl: "https://nvdc-prod-euw-llmapiorchestration-app.azurewebsites.net/v1.1",
+        systemPrompt: "Response in English only.",
+        headers: '"api-key": "my_api_key",\n"workspacename": "my_workspace_name"',
+        maxTokens: 400,
+        temperature: 0.2
+      }
+    },
+    //History of used params. Save only during message send?
+    baseUrlHistory: [
+      "http://192.168.100.105:1234/v1",
+      "http://localhost:1234/v1",
+      "https://nvdc-prod-euw-llmapiorchestration-app.azurewebsites.net/v1.1"
+    ],
+    systemPromptHistory: [
+      "Response in English only.",
+      "Response in English and French.",
+      "Response in English and French, but only if asked."
+    ]
+  };
 
   function handleConfigChange(newConfig) {
     console.log("handleConfigChange", newConfig);
@@ -41,7 +74,7 @@ export default function OpenAIChatApp() {
     const savedConfig = localStorage.getItem("config");
     const savedChat = localStorage.getItem("chat");
     if (savedChat) {
-      setChatHistory(JSON.parse(savedChat));
+      //setChatHistory(JSON.parse(savedChat));
     }
     if (savedConfig) {
       setConfig(JSON.parse(savedConfig));
@@ -79,25 +112,27 @@ export default function OpenAIChatApp() {
     messagesForApi = messagesForApi.map((m) => { return { role: m.role, content: m.content }; });
 
     const api = getEndpointInfo(config.endpoint).implementation;
-    console.log("api", messagesForApi);
-    const chat = api.continueChat(config.baseUrl, config.model, messagesForApi, {
+
+    api.continueChatStart(config.baseUrl, config.model, messagesForApi, {
       systemPrompt: config.systemPrompt,
       promptTemplate: config.promptTemplate,
       maxTokens: config.maxTokens,
       temperature: config.temperature,
-      topP: config.topP
+      topP: config.topP,
+      headers: config.headers
     });
 
-    setChatGenerator(chat);
-
-    setChatHistory((h) => [...h, { role: "user", content: msg, createdOn: new Date().getTime() },
-    { role: "assistant", model: config.model, content: "", createdOn: new Date().getTime() }]);
-    await wait(200);
+    await wait(100);
+    setChatHistory((h) => [...h, { role: "user", content: msg, createdOn: new Date().getTime() }]);
+    await wait(100);
+    setChatHistory((h) => [...h, { role: "assistant", model: config.model, content: "", createdOn: new Date().getTime() }]);
+    await wait(100);
 
     try {
       let chunk = "";
       let content = "";
-      while ((chunk = await chat.read()) !== false) {
+      let n = 0;
+      while ((chunk = await api.continueChatLoader()) !== null) {
         content += chunk;
         setChatHistory((h) => {
           const newHistory = [...h];
@@ -106,11 +141,12 @@ export default function OpenAIChatApp() {
           }
           newHistory[newHistory.length - 1].content = content;
           newHistory[newHistory.length - 1].finishedOn = new Date().getTime();
-          newHistory[newHistory.length - 1].finishReason = chat.finish_reason();
+          newHistory[newHistory.length - 1].finishReason = api.lastFinnishReason();
           return newHistory;
         });
+        if (++n > 1000) break;
       }
-      console.log("Chat finished:", chat.finish_reason());
+      console.log("Chat finished:", api.lastFinnishReason());
     } catch (error) {
       console.error(error);
 
@@ -134,15 +170,8 @@ export default function OpenAIChatApp() {
   }
 
   function handleStop() {
-    if (!loading) return;
-    if (!chatGenerator) return;
-    chatGenerator.abort();
-    setLoading(false);
-    setChatHistory((h) => {
-      const newHistory = [...h];
-      newHistory[newHistory.length - 1].error = "Generation aborted by user";
-      return newHistory;
-    });
+    const api = getEndpointInfo(config.endpoint).implementation;
+    api.abortLoadingChat();
   }
 
   function handleGenerate() {
@@ -203,7 +232,7 @@ export default function OpenAIChatApp() {
             hidden={!loading} onClick={handleStop}>stop</Button>
           <Button
             className="p-2 px-4 my-1 w-fit mx-auto rounded-full ring-6 ring-black/5 bg-blue-50"
-            hidden={lastMessage?.role !== "user"} onClick={handleGenerate}>generate response</Button>
+            hidden={loading || lastMessage?.role !== "user"} onClick={handleGenerate}>generate response</Button>
 
           <div className="flex flex-coxl gap-1 text-neutral-500 text-xs xtext-center justify-center">
             {chatSize > 0 && <div className="flex gap-1">

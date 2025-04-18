@@ -17,7 +17,7 @@ const Modal = ({ isOpen, onClose, title, actionName, onAction, children }) => {
   return (
     <dialog ref={dialogRef} onClose={onClose}
       className="select-none w-dvw h-dvh max-h-fit bg-black-50 mx-auto min-w-dvw overflow-hidden bg-black/5">
-      <div className="h-dvh bg-black/50 animate-[revealing_0.2s_ease-in-out]">
+      <div className="h-dvh bg-black/50 animate-[revealing_0.2s_ease-in-out]" tabIndex={0}>
         <div className="w-full max-h-[80dvh] flex flex-col bg-neutral-100 animate-[slideIn_0.2s_ease-in-out]">
           <div className="bg-white ring-2 ring-black/10">
             <div className="p-4 xbg-red-100 xtext-blue-600 text-center font-bold">{title}</div>
@@ -30,7 +30,7 @@ const Modal = ({ isOpen, onClose, title, actionName, onAction, children }) => {
             focus-within:ring-blue-300 focus-within:bg-blue-50
             ring-2 ring-black/10">
             <Button className={"lowercase"} onClick={onAction}>{actionName}</Button>
-            <Button className={"font-boldx lowercase"} onClick={onClose} autofocus>Cancel</Button>
+            <Button className={"font-boldx lowercase"} onClick={onClose}>Cancel</Button>
           </div>
         </div>
       </div>

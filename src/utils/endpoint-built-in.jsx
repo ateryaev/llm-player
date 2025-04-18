@@ -36,10 +36,10 @@ function splitTextIntoRandomChunks(text) {
     return chunks;
 }
 
-class EchoApi {
+class BuiltInApi {
 
-    async loadModelList(url, authKey = "") {
-        await wait(500);
+    async loadModelList(url) {
+        await wait(2000);
         if (url.indexOf("xxx") > -1) {
             throw new Error("Error loading model list, caused by \"xxx\" in baseUrl!");
         }
@@ -50,7 +50,64 @@ class EchoApi {
         ];
     }
 
-    continueChat(url, modelName, messages, parameters, authKey = "") {
+    #chunks = [];
+    #finishReason = null;
+
+    lastFinishReason() {
+        return this.#finishReason;
+    }
+
+    abortLoadingModels() {
+    }
+
+    abortLoadingChat() {
+        this.#chunks = null;
+    }
+
+    #modelName = null;
+    #lastMessage = null;
+    lastFinnishReason() {
+        return this.#finishReason;
+    }
+    continueChatStart(url, modelName, messages, config) {
+        //create fetch promise from arguments
+        const story = stories[Math.floor(Math.random() * stories.length)];
+        this.#chunks = splitTextIntoRandomChunks(story).reverse();
+        this.#modelName = modelName;
+        this.#finishReason = null;
+        this.#lastMessage = messages[messages.length - 1].content;
+    }
+
+    async continueChatLoader() {
+        // return null if finished or not started
+        // return next text from the response
+
+        if (this.#chunks.length === 0) return null;
+
+        await wait(Math.floor(Math.random() * 1000 + 100));
+
+        if (this.#modelName === "built-in-story-teller") {
+            if (this.#chunks.length < 2) this.#finishReason = "stop";
+            return this.#chunks.pop();
+        }
+
+        if (this.#modelName === "built-in-story-with-error") {
+            if (Math.random() > 0.95 || this.#chunks.length < 10) {
+                throw new Error("built-in-story-with-error always throw error in the middle!");
+            }
+            return this.#chunks.pop();
+        }
+
+        if (this.#modelName === "built-in-echo-response") {
+            this.#finishReason = "stop";
+            this.#chunks = [];
+            return "You said:\n" + this.#lastMessage;
+        }
+
+        throw new Error(`Unknown built-in model name: ${this.#modelName}`);
+    }
+
+    continueChat(url, modelName, messages, parameters) {
         let finish_reason = null;
         const story = stories[Math.floor(Math.random() * stories.length)];
         let chunks = splitTextIntoRandomChunks(story).reverse();
@@ -91,4 +148,4 @@ class EchoApi {
     }
 }
 
-export default EchoApi;
+export default BuiltInApi;
