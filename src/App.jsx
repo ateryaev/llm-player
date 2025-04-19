@@ -41,10 +41,22 @@ export default function OpenAIChatApp() {
     const savedConfig = localStorage.getItem("config");
     const savedChat = localStorage.getItem("chat");
     if (savedChat) {
-      setChatHistory(JSON.parse(savedChat));
+      try {
+        setChatHistory(JSON.parse(savedChat));
+      } catch (e) {
+        console.error("Error parsing chat from local storage", e);
+      }
     }
+
     if (savedConfig) {
-      setConfig(JSON.parse(savedConfig));
+      try {
+        const savedConfigObj = JSON.parse(savedConfig);
+        if (savedConfigObj.index && savedConfigObj.endpoints) {
+          setConfig(savedConfigObj);
+        }
+      } catch (e) {
+        console.error("Error parsing config from local storage", e);
+      }
     }
     setLoading(false);
   }, []);

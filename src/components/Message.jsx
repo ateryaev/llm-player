@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./Button";
 import { BlinkingCursor, RotatingCursor } from "./Cursors";
 import { timeAgoTxt, timeDiffTxt } from "../utils/helpers";
+import { Div } from "./UI";
 
 export default function Message({ index, role, deleted, createdOn, error, content, model, loading, state, selected, data, onDelete, ...props }) {
     const [deleteing, setDeleting] = useState(false);
@@ -74,19 +75,18 @@ export default function Message({ index, role, deleted, createdOn, error, conten
                 {loading && content === "" && <RotatingCursor />}
             </div>
 
-            {
-                model && <div className="text-xs text-neutral-500  px-2 py-1">
-                    {error && <div className="text-red-500">{error}</div>}
-                    {bytes} bytes
-                    {data.firstCharOn && data.finishedOn && data.createdOn && <>, {timeDiffTxt(data.firstCharOn - data.createdOn)} + {timeDiffTxt(data.finishedOn - data.firstCharOn)} to finish</>}
-                    , reason {data.finishReason}
-                </div>
-            }
-            {
-                !model && <div className="text-xs opacity-50 px-2 py-1">
-                    {bytes} bytes
-                    {data.createdOn && <>, {createdOnAgo}</>}</div>
-            }
+
+            <Div hidden={!model} className="text-xs text-neutral-500  px-2 py-1">
+                <Div hidden={!error} className="text-red-500">{error}</Div>
+                {bytes} bytes
+                {data.firstCharOn && data.finishedOn && data.createdOn && <>, {timeDiffTxt(data.firstCharOn - data.createdOn)} + {timeDiffTxt(data.finishedOn - data.firstCharOn)} to finish</>}
+                {data.finishReason && ", reason " + data.finishReason}
+            </Div>
+
+            <Div hidden={model} className="text-xs opacity-50 px-2 py-1">
+                {bytes} bytes
+                {data.createdOn && <>, {createdOnAgo}</>}</Div>
+
 
         </div >
     )

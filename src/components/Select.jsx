@@ -26,7 +26,7 @@ export function Select({ ref, hidden, value, onChange, options, loading, error }
             }}>
 
             <div className="group-focus:invisible rounded-sm p-2 px-3 ring-2 ring-neutral-200 bg-white flex gap-2 justify-between items-center">
-                <div className={(isLoaded ? (!isValidValue && "text-red-500 ") : "opacity-50")}>
+                <div className={(isLoaded ? (!isValidValue ? "text-red-500 " : "") : "opacity-50")}>
                     {value}<CharSpinner hidden={!isLoaded || isValidValue} chars={" ?"} ms={250} />&nbsp;
                 </div>
                 <Div hidden={loading}>[+]</Div>
