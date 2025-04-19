@@ -40,7 +40,7 @@ class BuiltInApi {
 
     async loadModelList(url) {
         await wait(2000);
-        if (url.indexOf("xxx") > -1) {
+        if (url?.indexOf("xxx") > -1) {
             throw new Error("Error loading model list, caused by \"xxx\" in baseUrl!");
         }
         return [
@@ -86,6 +86,10 @@ class BuiltInApi {
 
         await wait(Math.floor(Math.random() * 1000 + 100));
 
+        if (!this.#chunks) {
+            throw new Error("Chat generation aborted!");
+        }
+
         if (this.#modelName === "built-in-story-teller") {
             if (this.#chunks.length < 2) this.#finishReason = "stop";
             return this.#chunks.pop();
@@ -105,46 +109,6 @@ class BuiltInApi {
         }
 
         throw new Error(`Unknown built-in model name: ${this.#modelName}`);
-    }
-
-    continueChat(url, modelName, messages, parameters) {
-        let finish_reason = null;
-        const story = stories[Math.floor(Math.random() * stories.length)];
-        let chunks = splitTextIntoRandomChunks(story).reverse();
-        const lastMessage = messages[messages.length - 1].content;
-        let readCount = 0;
-
-        return {
-            finish_reason: () => finish_reason,
-            read: async () => {
-                readCount++;
-                console.log(`EchoApi.read() called ${readCount} times`);
-
-                await wait(Math.floor(Math.random() * ((readCount === 1 ? 3000 : 400))) + 10);
-
-                if (finish_reason) return false;
-
-                if (modelName === "built-in-story-teller") {
-                    if (chunks.length < 2) finish_reason = "stop";
-                    return chunks.pop();
-                }
-
-                if (modelName === "built-in-story-with-error") {
-                    if (Math.random() > 0.95 || chunks.length < 10) {
-                        throw new Error("built-in-story-with-error always throw error in the middle!");
-                    }
-                    return chunks.pop();
-                }
-
-                if (modelName === "built-in-echo-response") {
-                    finish_reason = "stop";
-                    return `Message:\n${lastMessage}\n\nParameters:\n${JSON.stringify(parameters)}`
-                }
-
-                throw new Error(`Unknown built-in model name: ${modelName}`);
-            },
-            abort: () => { finish_reason = "aborted"; },
-        };
     }
 }
 

@@ -29,8 +29,8 @@ const Modal = ({ isOpen, onClose, title, actionName, onAction, children }) => {
           <div className="p-4 bg-white flex gap-4 justify-center  
             focus-within:ring-blue-300 focus-within:bg-blue-50
             ring-2 ring-black/10">
-            <Button className={"lowercase"} onClick={onAction}>{actionName}</Button>
-            <Button className={"font-boldx lowercase"} onClick={onClose}>Cancel</Button>
+            <Button hidden={!onAction} className={"lowercase"} onClick={onAction}>{actionName}</Button>
+            <Button hidden={!onClose} className={"font-boldx lowercase"} onClick={onClose}>Cancel</Button>
           </div>
         </div>
       </div>

@@ -16,53 +16,20 @@ export default function OpenAIChatApp() {
   const [chatHistory, setChatHistory] = useState([]);
 
   const [config, setConfig] = useState({
-
-    endpoint: "built-in",
-    baseUrl: "http://localhost:1234/v1",
-    model: "echo-assistant-2",
-    systemPrompt: "Response in English only.",
-    headers: '"api-key": "my_api_key",\n"workspacename": "my_workspace_name"',
-    maxTokens: 200,
-    temperature: 0.7,
-
+    index: "built-in",
+    endpoints: {
+      "built-in": getEndpointInfo("built-in").defaultConfig,
+      "ollama-lm-studio": getEndpointInfo("ollama-lm-studio").defaultConfig,
+      "custom-openai-compatibile": getEndpointInfo("custom-openai-compatibile").defaultConfig
+    }
   });
 
-  const cfg = {
-    current: "build-in",
-    endpoints: {
-      "built-in": {
-        model: "built-in-story-teller"
-      },
-      "ollama-lm-studio": {
-        baseUrl: "http://localhost:1234/v1",
-        systemPrompt: "Response in English only.",
-        maxTokens: 500,
-        temperature: 0.8
-      },
-      "custom-openai-compatible": {
-        baseUrl: "https://nvdc-prod-euw-llmapiorchestration-app.azurewebsites.net/v1.1",
-        systemPrompt: "Response in English only.",
-        headers: '"api-key": "my_api_key",\n"workspacename": "my_workspace_name"',
-        maxTokens: 400,
-        temperature: 0.2
-      }
-    },
-    //History of used params. Save only during message send?
-    baseUrlHistory: [
-      "http://192.168.100.105:1234/v1",
-      "http://localhost:1234/v1",
-      "https://nvdc-prod-euw-llmapiorchestration-app.azurewebsites.net/v1.1"
-    ],
-    systemPromptHistory: [
-      "Response in English only.",
-      "Response in English and French.",
-      "Response in English and French, but only if asked."
-    ]
-  };
+  const currentConfig = useMemo(() => { return config.endpoints[config.index] }, [config]);
+  const isCurrentConfigBuiltin = useMemo(() => { return config.index === "built-in" }, [config]);
 
   function handleConfigChange(newConfig) {
-    console.log("handleConfigChange", newConfig);
-    if (newConfig) {
+
+    if (newConfig && !loading) {
       setConfig(newConfig);
       localStorage.setItem("config", JSON.stringify(newConfig));
     }
@@ -74,7 +41,7 @@ export default function OpenAIChatApp() {
     const savedConfig = localStorage.getItem("config");
     const savedChat = localStorage.getItem("chat");
     if (savedChat) {
-      //setChatHistory(JSON.parse(savedChat));
+      setChatHistory(JSON.parse(savedChat));
     }
     if (savedConfig) {
       setConfig(JSON.parse(savedConfig));
@@ -84,7 +51,7 @@ export default function OpenAIChatApp() {
 
   useEffect(() => {
     if (loading) return;
-    console.log("chatHistory changed for saving", chatHistory);
+    console.log("chatHistory changed for saving");
     localStorage.setItem("chat", JSON.stringify(chatHistory));
   }, [chatHistory, loading]);
 
@@ -102,30 +69,28 @@ export default function OpenAIChatApp() {
   }, [chatHistory]);
 
   async function sendMessage(msg) {
-
-    scrollerRef.current && (scrollerRef.current.scrollTop = scrollerRef.current.scrollHeight);
-
+    scrollerRef.current && (scrollerRef.current.scrollTop = 0);
     setLoading(true);
     let messagesForApi = [...chatHistory];
     messagesForApi.push({ role: "user", content: msg });
     //left only role and content
     messagesForApi = messagesForApi.map((m) => { return { role: m.role, content: m.content }; });
 
-    const api = getEndpointInfo(config.endpoint).implementation;
+    const api = getEndpointInfo(config.index).implementation;
 
-    api.continueChatStart(config.baseUrl, config.model, messagesForApi, {
-      systemPrompt: config.systemPrompt,
-      promptTemplate: config.promptTemplate,
-      maxTokens: config.maxTokens,
-      temperature: config.temperature,
-      topP: config.topP,
-      headers: config.headers
+    api.continueChatStart(currentConfig.baseUrl, currentConfig.model, messagesForApi, {
+      systemPrompt: currentConfig.systemPrompt,
+      promptTemplate: currentConfig.promptTemplate,
+      maxTokens: currentConfig.maxTokens,
+      temperature: currentConfig.temperature,
+      topP: currentConfig.topP,
+      headers: currentConfig.headers
     });
 
-    await wait(100);
+    //await wait(100);
     setChatHistory((h) => [...h, { role: "user", content: msg, createdOn: new Date().getTime() }]);
     await wait(100);
-    setChatHistory((h) => [...h, { role: "assistant", model: config.model, content: "", createdOn: new Date().getTime() }]);
+    setChatHistory((h) => [...h, { role: "assistant", model: currentConfig.model, content: "", createdOn: new Date().getTime() }]);
     await wait(100);
 
     try {
@@ -170,7 +135,7 @@ export default function OpenAIChatApp() {
   }
 
   function handleStop() {
-    const api = getEndpointInfo(config.endpoint).implementation;
+    const api = getEndpointInfo(config.index).implementation;
     api.abortLoadingChat();
   }
 
@@ -186,6 +151,7 @@ export default function OpenAIChatApp() {
   }
 
   function handleDelete(index) {
+    if (loading) return;
     chatHistory.splice(index, 1);
     const nextMessages = [...chatHistory]
     setChatHistory(nextMessages);
@@ -196,6 +162,7 @@ export default function OpenAIChatApp() {
   }
 
   function handleClearAll() {
+    if (loading) return;
     setChatHistory([]);
     setShowWarning(false);
   }
@@ -205,11 +172,11 @@ export default function OpenAIChatApp() {
       <div className="bg-white neutral-200 py-4 w-full top-0 sticky z-10 ring-2 ring-black/10">
 
         <div className="px-4 m-auto overflow-hidden max-w-3xl opacity-50 text-ellipsis whitespace-nowrap text-xs">
-          {config.endpoint === "built-in" ? "built-in" : config.baseUrl}
+          {isCurrentConfigBuiltin ? "built-in" : currentConfig.baseUrl}
         </div>
         <div className="px-4 m-auto max-w-3xl text-whitex  flex gap-2 items-end">
           <div className="flex-1 text-ellipsis whitespace-nowrap overflow-hidden">
-            {config.model}
+            {currentConfig.model}
           </div>
           <Button onClick={() => setShowConfig(true)}>config</Button>
 
@@ -237,7 +204,7 @@ export default function OpenAIChatApp() {
           <div className="flex flex-coxl gap-1 text-neutral-500 text-xs xtext-center justify-center">
             {chatSize > 0 && <div className="flex gap-1">
               {chatSize} bytes
-              <Button onClick={() => { setShowWarning(true); }}>clear all</Button>
+              <Button hidden={loading} onClick={() => { setShowWarning(true); }}>clear all</Button>
             </div>}
             {chatSize === 0 && <div className="flex gap-1">
               no messages yet
@@ -247,14 +214,11 @@ export default function OpenAIChatApp() {
         </div>
       </div>
 
-      <div className={"w-full p-4 max-w-3xl flex flex-col  items-center bottom-0 transition-all sticky z-10 bg-whitex  " +
-        (false ? " translate-y-full opacity-0" : "translate-y-0 opacity-100")}>
-
+      <div className="w-full p-4 max-w-3xl">
         <SendForm message={""} active={!loading} onSend={sendMessage} />
-
       </div>
 
-      <Config shown={showConfig} defaultConfig={config} onChange={handleConfigChange} />
+      <Config shown={showConfig} defaultConfig={config} onChange={handleConfigChange} readonly={loading} />
 
       <Modal isOpen={showWarning} onClose={() => { setShowWarning(false); }} title={"Warning"}
         actionName={"clear all"} onAction={handleClearAll}>
