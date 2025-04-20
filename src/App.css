@@ -36,3 +36,13 @@ dialog::backdrop {
     opacity: 1;
   }
 }
+
+.dialogdiv {
+  max-height: 80dvh;
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .dialogdiv {
+    max-height: 100dvh;
+  }
+}

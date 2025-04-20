@@ -152,23 +152,21 @@ export default function OpenAIChatApp() {
 
   return (
     <>
-      <div className="bg-white neutral-200 py-4 w-full top-0 sticky z-10 ring-2 ring-black/10">
-
-
-        <div className="px-4 m-auto overflow-hidden max-w-3xl opacity-50 text-ellipsis whitespace-nowrap text-xs">
-          {config.baseUrl ? config.baseUrl : endpoint}
-        </div>
-        <div className="px-4 m-auto max-w-3xl text-whitex  flex gap-2 items-end">
+      <div className="bg-white py-4 w-full z-10 ring-2 ring-black/10">
+        <div className="px-4 m-auto max-w-3xl flex gap-4 items-end">
           <div className="flex-1 text-ellipsis whitespace-nowrap overflow-hidden">
+            <div className="text-ellipsis overflow-hidden opacity-50 text-xs">
+              {config.baseUrl ? config.baseUrl : endpoint}
+            </div>
             {config.model}
           </div>
           <Button onClick={() => setShowConfig(true)}>config</Button>
-
         </div>
-      </div >
+      </div>
 
       <div ref={scrollerRef} className="flex-1 flex w-full flex-col-reverse overflow-auto items-stretch"
         onScroll={handleScroll}>
+
         <div className="max-w-3xl w-full m-auto p-4 pb-0 xpy-0 flex flex-col justify-end gap-4 flex-1">
 
           <Messages messages={chatHistory} loadingIndex={loading ? chatHistory.length - 1 : -1} editingIndex={0} onDelete={handleDelete}></Messages>

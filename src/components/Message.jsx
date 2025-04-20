@@ -8,6 +8,7 @@ export default function Message({ index, role, deleted, createdOn, error, conten
     const [deleteing, setDeleting] = useState(false);
     const [focused, setFocused] = useState(false);
     const [createdOnAgo, setCreatedOnAgo] = useState('');
+    const [copied, setCopied] = useState(false);
 
     const divRef = useRef(null);
     const bytes = useMemo(() => { return content.length + role.length }, [content, role]);
@@ -26,6 +27,25 @@ export default function Message({ index, role, deleted, createdOn, error, conten
     }
     function handleFocus() {
         setFocused(true);
+    }
+
+    function handleCopy() {
+        navigator.clipboard.writeText(content).then(() => {
+            setCopied(true);
+            divRef.current.focus({ preventScroll: true });
+            setTimeout(() => {
+                setCopied(false);
+            }, 2000);
+        }).catch((err) => {
+            setCopied(false);
+            console.error("Failed to copy:", err);
+        });
+    }
+
+    function handleDelete() {
+
+        setDeleting(!deleteing);
+        divRef.current.focus({ preventScroll: true });
     }
 
     useEffect(() => {
@@ -49,10 +69,14 @@ export default function Message({ index, role, deleted, createdOn, error, conten
                 <div className="text-xs flex-1"></div>
 
                 <div className="gap-2 group-focus-within:flex  hidden ">
+                    <Button hidden={deleteing || copied} onClick={handleCopy}>
+                        copy
+                    </Button>
+                    <Div hidden={!copied} className="select-none opacity-50">copied</Div>
                     <Button hidden={!deleteing} onClick={onDelete} className={"text-red-500"}>
                         delete
                     </Button>
-                    <Button hidden={false} onClick={() => { setDeleting(!deleteing); }} >
+                    <Button hidden={false} onClick={() => { handleDelete() }} >
                         {deleteing ? "cancel" : "delete"}
                     </Button>
                 </div>
