@@ -22,7 +22,6 @@ export default function Message({ index, role, deleted, createdOn, error, conten
     }, [createdOn]);
 
     function handleBlur(e) {
-        console.log("handleBlur", e)
         setFocused(false);
     }
     function handleFocus() {
@@ -53,15 +52,11 @@ export default function Message({ index, role, deleted, createdOn, error, conten
                     <Button hidden={!deleteing} onClick={onDelete} className={"text-red-500"}>
                         delete
                     </Button>
-                    <Button hidden={!deleteing} onClick={() => { setDeleting(false) }}>
-                        cancel
-                    </Button>
-
-                    <Button hidden={deleteing} onClick={() => { setDeleting(true); divRef.current?.focus(); }} >
-                        delete
+                    <Button hidden={false} onClick={() => { setDeleting(!deleteing); }} >
+                        {deleteing ? "cancel" : "delete"}
                     </Button>
                 </div>
-                <div className="gap-2 group-focus-within:hidden flex text-black opacity-25"><div>#{index + 1}</div></div>
+                <div className="gap-2 group-focus-within:hidden flex text-black opacity-25 select-none"><div>#{index + 1}</div></div>
             </div>
 
             {model &&
@@ -76,17 +71,16 @@ export default function Message({ index, role, deleted, createdOn, error, conten
             </div>
 
 
-            <Div hidden={!model} className="text-xs text-neutral-500  px-2 py-1">
+            <Div hidden={!model} className="text-xs text-neutral-500  px-2 py-1 select-none">
                 <Div hidden={!error} className="text-red-500">{error}</Div>
                 {bytes} bytes
                 {data.firstCharOn && data.finishedOn && data.createdOn && <>, {timeDiffTxt(data.firstCharOn - data.createdOn)} + {timeDiffTxt(data.finishedOn - data.firstCharOn)} to finish</>}
                 {data.finishReason && ", reason " + data.finishReason}
             </Div>
 
-            <Div hidden={model} className="text-xs opacity-50 px-2 py-1">
+            <Div hidden={model} className="text-xs opacity-50 px-2 py-1 select-none">
                 {bytes} bytes
                 {data.createdOn && <>, {createdOnAgo}</>}</Div>
-
 
         </div >
     )

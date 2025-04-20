@@ -16,7 +16,6 @@ export function Button({ children, disabled, hidden, className, onClick, ...prop
     }
 
     function handleClick(e) {
-        btnRef.current.blur();
         if (onClick) {
             onClick();
         }
@@ -29,7 +28,7 @@ export function Button({ children, disabled, hidden, className, onClick, ...prop
             {...props} onClick={handleClick}>
             <span className="group-focus/btn:inline-block hidden"><CharSpinner chars={" ["} /></span>
             <span className="group-focus/btn:hidden inline-block">[</span>
-            <span className="xgroup-focus:font-bold xgroup-focus:underline">{children}</span>
+            <span className="">{children}</span>
             <span className="group-focus/btn:inline-block hidden"><CharSpinner chars={" ]"} /></span>
             <span className="group-focus/btn:hidden inline-block">]</span>
         </button>

@@ -154,6 +154,7 @@ export default function OpenAIChatApp() {
     <>
       <div className="bg-white neutral-200 py-4 w-full top-0 sticky z-10 ring-2 ring-black/10">
 
+
         <div className="px-4 m-auto overflow-hidden max-w-3xl opacity-50 text-ellipsis whitespace-nowrap text-xs">
           {config.baseUrl ? config.baseUrl : endpoint}
         </div>
@@ -184,7 +185,7 @@ export default function OpenAIChatApp() {
             className="p-2 px-4 my-1 w-fit mx-auto rounded-full ring-6 ring-black/5 bg-blue-50"
             hidden={loading || lastMessage?.role !== "user"} onClick={handleGenerate}>generate response</Button>
 
-          <div className="flex flex-coxl gap-1 text-neutral-500 text-xs xtext-center justify-center">
+          <div className="select-none flex flex-coxl gap-1 text-neutral-500 text-xs xtext-center justify-center">
             {chatSize > 0 && <div className="flex gap-1">
               {chatSize} bytes
               <Button hidden={loading} onClick={() => { setShowWarning(true); }}>clear all</Button>
