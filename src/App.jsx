@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import Modal from "./components/Modal";
 import SendForm from "./components/SendForm";
 import Messages from "./components/Messages";
@@ -6,6 +6,7 @@ import { wait } from "./utils/helpers";
 import { Button } from "./components/Button";
 import { Config } from "./Config";
 import { getEndpointInfo } from "./utils/endpoints";
+import { useConfig } from "./ConfigContext";
 
 export default function OpenAIChatApp() {
   const scrollerRef = useRef(null);
@@ -15,47 +16,17 @@ export default function OpenAIChatApp() {
   const [loading, setLoading] = useState(true);
   const [chatHistory, setChatHistory] = useState([]);
 
-  const [config, setConfig] = useState({
-    index: "built-in",
-    endpoints: {
-      "built-in": getEndpointInfo("built-in").defaultConfig,
-      "ollama-lm-studio": getEndpointInfo("ollama-lm-studio").defaultConfig,
-      "custom-openai-compatibile": getEndpointInfo("custom-openai-compatibile").defaultConfig
-    }
-  });
+  const { endpoint, config } = useConfig();
 
-  const currentConfig = useMemo(() => { return config.endpoints[config.index] }, [config]);
-  const isCurrentConfigBuiltin = useMemo(() => { return config.index === "built-in" }, [config]);
-
-  function handleConfigChange(newConfig) {
-
-    if (newConfig && !loading) {
-      setConfig(newConfig);
-      localStorage.setItem("config", JSON.stringify(newConfig));
-    }
-    setShowConfig(false);
-  }
 
   useEffect(() => {
     //load config from local storage
-    const savedConfig = localStorage.getItem("config");
     const savedChat = localStorage.getItem("chat");
     if (savedChat) {
       try {
         setChatHistory(JSON.parse(savedChat));
       } catch (e) {
         console.error("Error parsing chat from local storage", e);
-      }
-    }
-
-    if (savedConfig) {
-      try {
-        const savedConfigObj = JSON.parse(savedConfig);
-        if (savedConfigObj.index && savedConfigObj.endpoints) {
-          setConfig(savedConfigObj);
-        }
-      } catch (e) {
-        console.error("Error parsing config from local storage", e);
       }
     }
     setLoading(false);
@@ -88,21 +59,21 @@ export default function OpenAIChatApp() {
     //left only role and content
     messagesForApi = messagesForApi.map((m) => { return { role: m.role, content: m.content }; });
 
-    const api = getEndpointInfo(config.index).implementation;
+    const api = getEndpointInfo(endpoint).implementation;
 
-    api.continueChatStart(currentConfig.baseUrl, currentConfig.model, messagesForApi, {
-      systemPrompt: currentConfig.systemPrompt,
-      promptTemplate: currentConfig.promptTemplate,
-      maxTokens: currentConfig.maxTokens,
-      temperature: currentConfig.temperature,
-      topP: currentConfig.topP,
-      headers: currentConfig.headers
+    api.continueChatStart(config.baseUrl, config.model, messagesForApi, {
+      systemPrompt: config.systemPrompt,
+      promptTemplate: config.promptTemplate,
+      maxTokens: config.maxTokens,
+      temperature: config.temperature,
+      topP: config.topP,
+      headers: config.headers
     });
 
     //await wait(100);
     setChatHistory((h) => [...h, { role: "user", content: msg, createdOn: new Date().getTime() }]);
     await wait(100);
-    setChatHistory((h) => [...h, { role: "assistant", model: currentConfig.model, content: "", createdOn: new Date().getTime() }]);
+    setChatHistory((h) => [...h, { role: "assistant", model: config.model, content: "", createdOn: new Date().getTime() }]);
     await wait(100);
 
     try {
@@ -147,7 +118,7 @@ export default function OpenAIChatApp() {
   }
 
   function handleStop() {
-    const api = getEndpointInfo(config.index).implementation;
+    const api = getEndpointInfo(endpoint).implementation;
     api.abortLoadingChat();
   }
 
@@ -184,11 +155,11 @@ export default function OpenAIChatApp() {
       <div className="bg-white neutral-200 py-4 w-full top-0 sticky z-10 ring-2 ring-black/10">
 
         <div className="px-4 m-auto overflow-hidden max-w-3xl opacity-50 text-ellipsis whitespace-nowrap text-xs">
-          {isCurrentConfigBuiltin ? "built-in" : currentConfig.baseUrl}
+          {config.baseUrl ? config.baseUrl : endpoint}
         </div>
         <div className="px-4 m-auto max-w-3xl text-whitex  flex gap-2 items-end">
           <div className="flex-1 text-ellipsis whitespace-nowrap overflow-hidden">
-            {currentConfig.model}
+            {config.model}
           </div>
           <Button onClick={() => setShowConfig(true)}>config</Button>
 
@@ -230,9 +201,9 @@ export default function OpenAIChatApp() {
         <SendForm message={""} active={!loading} onSend={sendMessage} />
       </div>
 
-      <Config shown={showConfig} defaultConfig={config} onChange={handleConfigChange} readonly={loading} />
+      <Config shown={showConfig} onDone={setShowConfig} readonly={loading} />
 
-      <Modal isOpen={showWarning} onClose={() => { setShowWarning(false); }} title={"Warning"}
+      <Modal isOpen={showWarning} onClose={() => setShowWarning(false)} title={"Warning"}
         actionName={"clear all"} onAction={handleClearAll}>
         <div className="p-4 text-center">
           Are you sure to delete all messages from this chat?

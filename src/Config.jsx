@@ -1,43 +1,48 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Modal from "./components/Modal";
 import { Select } from "./components/Select";
-import { Button } from "./components/Button";
 import { getEndpointInfo, getEndpointNames } from "./utils/endpoints";
 import { EndpointConfig } from "./EndpointConfig";
 import { Div } from "./components/UI";
+import { useConfig } from "./ConfigContext";
 
-export function Config({ shown, defaultConfig, onChange, readonly }) {
+export function Config({ shown, onDone, readonly }) {
 
-    const [config, setConfig] = useState(defaultConfig);
-    //const [changed, setChanged] = useState(false);
-    const currentConfig = useMemo(() => { return config?.endpoints[config.index] }, [config]);
-    const endpointInfo = useMemo(() => { return getEndpointInfo(config.index) }, [currentConfig]);
+    const { endpoint, config, getConfigByEndpoint, update } = useConfig();
+
+    const [renderConfig, setRenderConfig] = useState(config);
+    const [renderEndpoint, setRenderEndpoint] = useState(endpoint);
+
+    const endpointInfo = useMemo(() => { return getEndpointInfo(renderEndpoint) }, [renderEndpoint]);
 
     const changed = useMemo(() => {
-        return JSON.stringify(config) !== JSON.stringify(defaultConfig);
-    }, [config, defaultConfig]);
+        return renderEndpoint !== endpoint || JSON.stringify(renderConfig) !== JSON.stringify(config);
+    }, [renderConfig, config, renderEndpoint, endpoint]);
 
     useEffect(() => {
-        setConfig(defaultConfig);
-    }, [shown, defaultConfig]);
+        setRenderConfig({ ...config });
+        setRenderEndpoint(endpoint);
+    }, [shown]);
 
     function handleCancel() {
-        setConfig(defaultConfig);
-        onChange(null);
+        onDone();
     }
+
     function handleApply() {
-        onChange(config);
+        if (readonly) return;
+        update(renderEndpoint, renderConfig);
+        onDone();
     }
 
     function changeEndpoint(value) {
         if (readonly) return;
-        const newConfig = { ...config, index: value };
-        setConfig(newConfig);
+        setRenderEndpoint(value);
+        setRenderConfig(getConfigByEndpoint(value));
     }
 
     function handleChange(endpointConfig) {
         if (readonly) return;
-        setConfig({ ...config, endpoints: { ...config.endpoints, [config.index]: endpointConfig } });
+        setRenderConfig({ ...endpointConfig });
     }
 
     return (
@@ -52,7 +57,7 @@ export function Config({ shown, defaultConfig, onChange, readonly }) {
                 <div className="">
                     <div className="p-2">Endpoint Type</div>
                     <Select
-                        value={config.index}
+                        value={renderEndpoint}
                         onChange={changeEndpoint}
                         options={getEndpointNames()} />
                 </div>
@@ -62,7 +67,7 @@ export function Config({ shown, defaultConfig, onChange, readonly }) {
                 </div>
             </div>
 
-            <EndpointConfig config={currentConfig} onChange={handleChange} endpointInfo={endpointInfo} />
+            <EndpointConfig config={renderConfig} onChange={handleChange} endpointInfo={endpointInfo} />
 
             <div className="flex max-w-3xl m-auto gap-2 flex-col p-4 pt-0">
                 <div className="text-xs p-2 px-3 text-black/50 bg-neutral-200/50 rounded-sm">

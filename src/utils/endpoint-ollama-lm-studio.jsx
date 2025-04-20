@@ -89,6 +89,7 @@ export class OllamaLmStudioApi {
                 return null; // Return null if the stream is done
             }
 
+            //TODO: take stats from the last chunk
             return chunks.map(c => c.choices?.[0]?.delta?.content).join("");
         } catch (error) {
             console.error("Error during chat loading:", error);

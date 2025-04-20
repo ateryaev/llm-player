@@ -6,9 +6,8 @@ const endpoints = [
     {
         name: "built-in",
         implementation: new BuiltInApi(),
-        baseUrlExample: "built-in",
         about: "Built-in models for testing purposes. Try different models for different behaviors.",
-        usedParams: [],
+        usedParams: ["model"],
         defaultConfig: {
             endpoint: "built-in",
             model: "built-in-story-teller"
@@ -17,9 +16,8 @@ const endpoints = [
     {
         name: "ollama-lm-studio",
         implementation: new OllamaLmStudioApi(),
-        baseUrlExample: "http://localhost:1234/v1",
-        about: "OpenAI compatibility API. Can be used for LM Studio or OLLAMA server.",
-        usedParams: ["baseUrl", "systemPrompt", "maxTokens", "temperature"],
+        about: "OpenAI compatibile API. Can be used for LM Studio or OLLAMA server. It has model list loader.",
+        usedParams: ["model", "baseUrl", "systemPrompt", "maxTokens", "temperature"],
         defaultConfig: {
             baseUrl: "http://localhost:1234/v1",
             systemPrompt: "Response in English only.",
@@ -31,9 +29,8 @@ const endpoints = [
     {
         name: "custom-openai-compatibile",
         implementation: new CustomOpenAiApi(),
-        baseUrlExample: "http://localhost:1234/v1",
-        about: "OpenAI compatibility API. Can be used for any compatible servers. Make sure to set headers, e.g. for api-key.",
-        usedParams: ["baseUrl", "systemPrompt", "maxTokens", "temperature", "headers"],
+        about: "OpenAI compatibile API. Can be used for any compatible servers. Make sure to set headers, e.g. for api-key.",
+        usedParams: ["model", "baseUrl", "systemPrompt", "maxTokens", "temperature", "headers"],
         defaultConfig: {
             baseUrl: "https://nvdc-prod-euw-llmapiorchestration-app.azurewebsites.net/v1.1",
             systemPrompt: "Response in English only.",
