@@ -1,0 +1,27 @@
+
+<svg  xmlns="http://www.w3.org/2000/svg"  width="32"  height="32"  viewBox="0 0 32 32"  fill="none"  stroke="currentColor"  
+stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round" >
+
+<!-- full size rect -->
+<!-- <rect x="0" y="0" width="32" height="32" fill="white" stroke="none"/> -->
+
+<!-- <g stroke="#4488cc" stroke-width="9" fill="#4488cc" >
+<path d="M6,6 l20,0 l0,20 l-20,0 z"/>
+</g> -->
+<g stroke="#ffffff" stroke-width="6" fill="#ffffff" >
+<path d="M6,6 l20,0 l0,20 l-20,0 z"/>
+</g>
+
+<g stroke="#4488cc" stroke-width="2" >
+    <!-- <path d="M9,6 l6,4 l-6,4 M18,6 l6,4 l-6,4 
+     M6,20 l0 6 l6,0 l0,-6 m0,6 l6,0 
+     l0,-6 l4,4 l4,-4 l0,6" /> -->
+         <path d="M9,6 l-3,0 l0,20 l3,0
+         M10,10 l0,4 l4,0
+         M18,10 l0,4 l4,0
+         M10,22 l0,-4 l2,2 l2,-2 l0,4
+         M18,18 l0,4 l4,-2z
+         M23,6 l3,0 l0,20 l-3,0
+         " />
+</g>
+    </svg>
