@@ -149,6 +149,11 @@ export default function OpenAIChatApp() {
     setChatHistory([]);
     setShowWarning(false);
   }
+  function handleShowConfig(e, btn) {
+    console.log("show config", e);
+    btn?.blur();
+    setShowConfig(true);
+  }
 
   return (
     <>
@@ -160,7 +165,7 @@ export default function OpenAIChatApp() {
             </div>
             {config.model}
           </div>
-          <Button onClick={() => setShowConfig(true)}>config</Button>
+          <Button onClick={handleShowConfig}>config</Button>
         </div>
       </div>
 

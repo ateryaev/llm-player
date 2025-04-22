@@ -38,11 +38,8 @@ function splitTextIntoRandomChunks(text) {
 
 class BuiltInApi {
 
-    async loadModelList(url) {
-        await wait(2000);
-        if (url?.indexOf("xxx") > -1) {
-            throw new Error("Error loading model list, caused by \"xxx\" in baseUrl!");
-        }
+    async loadModelList() {
+        await wait(1000);
         return [
             { name: "built-in-story-teller", },
             { name: "built-in-echo-response", },
@@ -84,7 +81,7 @@ class BuiltInApi {
 
         if (this.#chunks.length === 0) return null;
 
-        await wait(Math.floor(Math.random() * 1000 + 100));
+        await wait(Math.floor(Math.random() * 500 + 100));
 
         if (!this.#chunks) {
             throw new Error("Chat generation aborted!");

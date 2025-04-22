@@ -7,7 +7,7 @@ function Messages({ messages, loadingIndex, editingIndex, onDelete }) {
     return (
         <>
             {messages.map((message, index) => (
-                <Message key={index}
+                <Message key={message.createdOn + "/" + index}
                     index={index}
                     data={message}
                     selected={selectedIndex === index}

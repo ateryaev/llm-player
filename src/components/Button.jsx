@@ -17,7 +17,7 @@ export function Button({ children, disabled, hidden, className, onClick, ...prop
 
     function handleClick(e) {
         if (onClick) {
-            onClick();
+            onClick(e, btnRef.current);
         }
     }
 
