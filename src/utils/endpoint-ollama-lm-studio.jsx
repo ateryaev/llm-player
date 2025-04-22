@@ -5,9 +5,14 @@ export class OllamaLmStudioApi {
     #chatFetcher = null;
     #modelsFetcher = null;
     #finishReason = null;
+    #lastData = null;
 
     lastFinnishReason() {
         return this.#finishReason;
+    }
+
+    lastData() {
+        return this.#lastData;
     }
 
     abortLoadingModels() {
@@ -90,6 +95,8 @@ export class OllamaLmStudioApi {
             }
 
             //TODO: take stats from the last chunk
+            this.#lastData = chunks[chunks.length - 1]; // Store the last chunk data
+            this.#finishReason = chunks[chunks.length - 1]?.choices?.[0]?.finish_reason || null; // Store the finish reason
             return chunks.map(c => c.choices?.[0]?.delta?.content).join("");
         } catch (error) {
             console.error("Error during chat loading:", error);

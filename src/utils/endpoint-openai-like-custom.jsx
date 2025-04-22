@@ -20,6 +20,10 @@ export class CustomOpenAiApi {
         return this.#parent.abortLoadingChat();
     }
 
+    lastData() {
+        return this.#parent.lastData();
+    }
+
     lastFinnishReason() {
         return this.#parent.lastFinnishReason();
     }

@@ -90,9 +90,13 @@ export default function OpenAIChatApp() {
           newHistory[newHistory.length - 1].content = content;
           newHistory[newHistory.length - 1].finishedOn = new Date().getTime();
           newHistory[newHistory.length - 1].finishReason = api.lastFinnishReason();
+          newHistory[newHistory.length - 1].data = api.lastData();
           return newHistory;
         });
-        if (++n > 1000) break;
+        if (++n > 5000) {
+          api.abortLoadingChat();
+          throw new Error("Too long response, aborting");
+        }
       }
       console.log("Chat finished:", api.lastFinnishReason());
     } catch (error) {

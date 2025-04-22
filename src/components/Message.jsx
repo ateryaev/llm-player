@@ -10,6 +10,7 @@ export default function Message({ index, role, deleted, createdOn, error, conten
     const [createdOnAgo, setCreatedOnAgo] = useState('');
     const [copied, setCopied] = useState(false);
 
+    //data.finishReason = null;
     const divRef = useRef(null);
     const bytes = useMemo(() => { return content.length + role.length }, [content, role]);
 
@@ -97,9 +98,13 @@ export default function Message({ index, role, deleted, createdOn, error, conten
 
             <Div hidden={!model} className="text-xs text-neutral-500  px-2 py-1 select-none">
                 <Div hidden={!error} className="text-red-500">{error}</Div>
-                {bytes} bytes
-                {data.firstCharOn && data.finishedOn && data.createdOn && <>, {timeDiffTxt(data.firstCharOn - data.createdOn)} + {timeDiffTxt(data.finishedOn - data.firstCharOn)} to finish</>}
-                {data.finishReason && ", reason " + data.finishReason}
+                {data?.data?.tokenUsage?.completion_tokens ? `${data?.data?.tokenUsage?.completion_tokens} tokens` : `${bytes} bytes`}
+
+                {data.firstCharOn && data.finishedOn && data.createdOn && <>, {timeDiffTxt(data.firstCharOn - data.createdOn)} + {timeDiffTxt(data.finishedOn - data.firstCharOn)}</>}
+                {data?.finishReason && data?.finishReason !== "null" && ", finish reason " + data.finishReason}
+                {data?.data?.tokenUsage?.prompt_tokens && `, ${data?.data?.tokenUsage?.prompt_tokens} tokens prompt`}
+
+
             </Div>
 
             <Div hidden={model} className="text-xs opacity-50 px-2 py-1 select-none">

@@ -50,6 +50,10 @@ class BuiltInApi {
     #chunks = [];
     #finishReason = null;
 
+    lastData() {
+        return {};
+    }
+
     lastFinishReason() {
         return this.#finishReason;
     }

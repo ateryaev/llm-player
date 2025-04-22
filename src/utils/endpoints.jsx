@@ -19,7 +19,7 @@ const endpoints = [
         about: "OpenAI-compatible API. Can be used with LM Studio or OLLAMA server. Includes a model list loader.",
         usedParams: ["model", "baseUrl", "systemPrompt", "maxTokens", "temperature"],
         defaultConfig: {
-            baseUrl: "http://localhost:1234/v1",
+            baseUrl: "http://192.168.100.105:1234/v1",
             systemPrompt: "Response in English only.",
             maxTokens: 500,
             temperature: 0.8,
