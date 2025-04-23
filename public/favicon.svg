@@ -2,29 +2,20 @@
 <svg  xmlns="http://www.w3.org/2000/svg"  width="34"  height="34"  viewBox="-1 -1 34 34"  fill="none"  stroke="currentColor"  
 stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round" >
 
-<!-- full size rect -->
-<!-- <rect x="0" y="0" width="32" height="32" fill="white" stroke="none"/> -->
-
-<g stroke="#ffffff" stroke-width="12" fill="#ffffff" >
+<g stroke="#ffffff88" stroke-width="14" fill="#ffffff88" >
 <path d="M6,6 l20,0 l0,20 l-20,0 z"/>
 </g>
-<g stroke="#4488cc" stroke-width="8" fill="#4488cc" >
+<g stroke="#4488cc" stroke-width="12" fill="#4488cc" >
 <path d="M6,6 l20,0 l0,20 l-20,0 z"/>
 </g>
 
 <g stroke="#ffffff" stroke-width="2"  >
-         <path stroke-width="4" stroke="#00000022" d="M9,6 l-3,0 l0,20 l3,0
-         M23,6 l3,0 l0,20 l-3,0
-         " />
-         <path stroke-width="4" stroke="#00000022" xfill="white" d="
-         M12,12 l0,8 l8,-4 l-8,-4
+         <path stroke-width="3" d="M9,10 l-3,0 l0,12 l3,0
+         M23,10 l3,0 l0,12 l-3,0
          " />
 
-         <path d="M9,6 l-3,0 l0,20 l3,0
-         M23,6 l3,0 l0,20 l-3,0
-         " />
-         <path stroke-width="2" xfill="white" d="
-         M12,12 l0,8 l8,-4 l-8,-4
+         <path stroke-width="3" fill="white" d="
+         M13,13 l0,6 l6,-3z
          " />
 </g>
-    </svg>
+</svg>
