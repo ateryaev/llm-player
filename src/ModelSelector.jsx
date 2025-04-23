@@ -25,7 +25,7 @@ export function ModelSelector({ value, onChange, loader, abort }) {
 
         try {
             const list = await loader();
-            setModels(list);
+            setModels(list || []);
         } catch (error) {
             setModels([]);
             setLoadingError(error.message);

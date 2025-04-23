@@ -54,7 +54,7 @@ export function EndpointConfig({ config, onChange, endpointInfo }) {
                 <ModelSelector value={config.model}
                     onChange={(value) => { change("model", value) }}
                     loader={() => endpointInfo.implementation.loadModelList(config.baseUrl, config.headers)}
-                    abort={endpointInfo.implementation.abortLoadingModels} />
+                    abort={() => endpointInfo.implementation.abortLoadingModels()} />
 
                 <Div hidden={!hasParam("headers")}>
                     <div className="p-2 flex justify-between gap-1">
