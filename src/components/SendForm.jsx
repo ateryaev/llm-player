@@ -56,17 +56,12 @@ function SendForm({ message, active, onSend }) {
         <div className="p-0 my-2 pr-4 m-auto w-full max-w-3xl items-center flex gap-2 ring-6 ring-black/5 group
         focus-within:ring-blue-300 focus-within:bg-blue-50 bg-white rounded-lg ">
 
-            <input
+            <textarea
                 ref={inputRef}
                 rows={2}
-                className="bg-transparent  p-3 xpx-0 outline-none block placeholder:text-xxs 
-                placeholder:text-black/40 focus:placeholder:text-blue-400/60 
-        border-none flex-1
-        xring-2 ring-neutral-300 rounded-md
-        shadow-lgx shadow-black/10
-        xtext-blue-400"
-                name="message"
-                type="text"
+                className="bg-white group-focus-within:bg-blue-50  border-transparent  m-3 outline-none block resize-none
+                    placeholder:text-black/40 focus:placeholder:text-blue-400/60 
+                    xborder-none flex-1 rounded-md shadow-lgx shadow-black/10"
                 autoComplete="off"
                 placeholder="new message"
                 value={shownMessage}
@@ -74,7 +69,9 @@ function SendForm({ message, active, onSend }) {
                 onBlur={handleBlur}
                 onChange={(e) => setShownMessage(e.target.value)}
                 onKeyDown={(e) => {
+
                     if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
                         send();
                     }
                 }}

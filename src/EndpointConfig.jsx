@@ -43,6 +43,9 @@ export function EndpointConfig({ config, onChange, endpointInfo }) {
                 <Div hidden={!hasParam("baseUrl")}>
                     <div className="p-2">Base URL</div>
                     <Input
+                        autoComplete="baseUrl"
+                        name="baseUrl"
+                        id="baseUrl"
                         placeholder="E.g. http://192.168.100.105:1234/v1"
                         value={config.baseUrl}
                         onChange={(e) => { change("baseUrl", e.target.value) }} />
@@ -62,6 +65,7 @@ export function EndpointConfig({ config, onChange, endpointInfo }) {
                             <CharSpinner chars={" ."} />invalid</Div>
                     </div>
                     <Textarea
+                        secret={true}
                         spellCheck={false}
                         placeholder={'Example:\n"api-key": "MYAPIKEY",\n"workspacename": "MYWORKSPACENAME", \n'}
                         value={config.headers}
@@ -108,9 +112,10 @@ export function EndpointConfig({ config, onChange, endpointInfo }) {
                         <div className="flex-1">System Prompt</div>
                     </div>
                     <Textarea
-                        placeholder={"Example:\nResponse with translation all user input into Finnish language."}
+                        placeholder={"Example:\nResponse with jokes and sarcasm."}
                         value={config.systemPrompt}
-                        onChange={(e) => { change("systemPrompt", e.target.value) }} />
+                        onChange={(e) => { change("systemPrompt", e.target.value) }}
+                    />
                 </Div>
 
             </div>

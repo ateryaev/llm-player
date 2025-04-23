@@ -173,7 +173,7 @@ export default function OpenAIChatApp() {
         </div>
       </div>
 
-      <div ref={scrollerRef} className="flex-1 flex w-full flex-col-reverse overflow-auto items-stretch"
+      <div ref={scrollerRef} className="flex-1 flex w-full flex-col-reverse overflow-auto no-scrollbar items-stretch"
         onScroll={handleScroll}>
 
         <div className="max-w-3xl w-full m-auto p-4 pb-0 xpy-0 flex flex-col justify-end gap-4 flex-1">

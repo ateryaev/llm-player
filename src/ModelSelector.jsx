@@ -58,6 +58,9 @@ export function ModelSelector({ value, onChange, loader, abort }) {
             <Input
                 hidden={loader && abort}
                 value={value}
+                autoComplete="modelName"
+                name="modelName"
+                id="modelName"
                 onChange={(e) => { onChange(e.target.value) }} />
 
             <Select

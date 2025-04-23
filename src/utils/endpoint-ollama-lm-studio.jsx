@@ -49,6 +49,18 @@ export class OllamaLmStudioApi {
             return false;
         }
 
+        config.temperature = config.temperature * 1.0 + 1.0;
+        if (config.temperature) {
+            config.temperature -= 1.0; // Normalize temperature to be between 0 and 1
+            config.temperature = Math.min(Math.max(config.temperature, 0), 1);
+        }
+
+        config.maxTokens = config.maxTokens * 1;
+        if (config.maxTokens) {
+            config.maxTokens = Math.round(config.maxTokens); // Normalize max tokens to be an integer
+            config.maxTokens = Math.min(Math.max(config.maxTokens, 5), 4000);
+        }
+
         const params = {
             ...(config.maxTokens && { max_tokens: config.maxTokens }),
             ...(config.topP && { top_p: config.topP }),
