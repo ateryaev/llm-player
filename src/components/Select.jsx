@@ -35,13 +35,14 @@ export function Select({ ref, hidden, value, onChange, options, loading, error }
 
             <div ref={allRef}
                 className="absolute scroll-m-4 z-20 ring-2 group ring-blue-400 h-fit group-focus:flex hidden bg-white p-0 max-h-52 
-                        inset-0 cursor-pointer overflow-y-auto overflow-x-clip rounded-sm shadow-lg shadow-black/20  flex-col gap-0 justify-between items-stretch">
+                        inset-0 cursor-pointer overflow-y-auto overflow-x-clip rounded-sm shadow-lg shadow-black/20  flex-col gap-0 justify-between items-stretch
+                        dark:shadow-white/80">
                 <div hidden={loading}
                     onClick={() => handleClick(value)}
                     className={`p-2 px-3 border-b-2 border-blue-400 bg-blue-50 xtext-blue-600`}
                 >{value}&nbsp;</div>
 
-                <Div hidden={!loading} className="p-2 px-3 xtext-red-600 flex gap-2 justify-between items-center">
+                <Div hidden={!loading} className="p-2 px-3 flex gap-2 justify-between items-center">
                     {value}
                     <div className="text-nowrap w-fit">[<CharSpinner chars={"-\\|/"} />]</div>
                 </Div>

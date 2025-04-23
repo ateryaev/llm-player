@@ -10,7 +10,5 @@
     ],
     "orientation": "any",
     "start_url": ".",
-    "display": "standalone",
-    "theme_color": "#fff",
-    "background_color": "#fff"
+    "display": "standalone"
 }

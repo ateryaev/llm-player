@@ -4,15 +4,22 @@ html {
   touch-action: manipulation;
   font-family: monospace, Courier, 'Courier New';
   font-size: 14px;
-
-}
-
-#root {
-  padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
 }
 
 dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.0);
+}
+
+@media (prefers-color-scheme: dark) {
+
+  html,
+  dialog {
+    filter: invert(90%) saturate(50%) contrast(90%) hue-rotate(180deg);
+  }
+}
+
+#root {
+  padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
 }
 
 @keyframes revealing {
@@ -41,7 +48,7 @@ dialog::backdrop {
   max-height: 80dvh;
 }
 
-@media (max-height: 500px) and (orientation: landscape) {
+@media (max-height: 500px) {
   .dialogdiv {
     max-height: 100dvh;
   }

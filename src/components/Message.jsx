@@ -97,7 +97,7 @@ export default function Message({ index, role, deleted, createdOn, error, conten
 
 
             <Div hidden={!model} className="text-xs text-neutral-500  px-2 py-1 select-none">
-                <Div hidden={!error} className="text-red-500">{error}</Div>
+                <Div hidden={!error} className="text-red-600">{error}</Div>
                 {data?.data?.tokenUsage?.completion_tokens ? `${data?.data?.tokenUsage?.completion_tokens} tokens` : `${bytes} bytes`}
 
                 {data.firstCharOn && data.finishedOn && data.createdOn && <>, {timeDiffTxt(data.firstCharOn - data.createdOn)} + {timeDiffTxt(data.finishedOn - data.firstCharOn)}</>}

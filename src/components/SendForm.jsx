@@ -1,6 +1,5 @@
-import { act, use, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./Button";
-import { Blink, CharSpinner } from "./Cursors";
 
 function SendForm({ message, active, onSend }) {
     const [shownMessage, setShownMessage] = useState(message);
@@ -11,7 +10,6 @@ function SendForm({ message, active, onSend }) {
     }, [message]);
 
     useEffect(() => {
-        //change inputRef placeholder value periodically
         let n = 0;
         if (focused) {
             inputRef.current.placeholder = "new message";
@@ -20,12 +18,7 @@ function SendForm({ message, active, onSend }) {
 
         const interval = setInterval(() => {
             n++;
-            let txt = "";
-
-            txt = "new message" + (n % 2 ? ": " : "  ");
-            //txt = (n % 2 ? "> " : "  ") + "new message" + (n % 2 ? " " : "");
-
-
+            const txt = "new message" + (n % 2 ? ": " : "  ");
             if (inputRef.current) {
                 inputRef.current.placeholder = txt;
             }
@@ -47,21 +40,19 @@ function SendForm({ message, active, onSend }) {
     function send() {
         if (!sendable) return
         setShownMessage("");
-        //inputRef.current.focus()
         onSend(shownMessage);
     }
 
     return (
-        // <div className="p-3 xw-full items-center flex gap-3 group bg-neutral-200 ring-2 m-2 ring-neutral-300 rounded-2xl">
         <div className="p-0 my-2 pr-4 m-auto w-full max-w-3xl items-center flex gap-2 ring-6 ring-black/5 group
         focus-within:ring-blue-300 focus-within:bg-blue-50 bg-white rounded-lg ">
 
             <textarea
                 ref={inputRef}
                 rows={2}
-                className="bg-white group-focus-within:bg-blue-50  border-transparent  m-3 outline-none block resize-none
+                className="bg-transparent  m-3 outline-none block resize-none
                     placeholder:text-black/40 focus:placeholder:text-blue-400/60 
-                    xborder-none flex-1 rounded-md shadow-lgx shadow-black/10"
+                    border-none flex-1 rounded-md"
                 autoComplete="off"
                 placeholder="new message"
                 value={shownMessage}
@@ -76,9 +67,6 @@ function SendForm({ message, active, onSend }) {
                     }
                 }}
             />
-
-
-            {/* <CharSpinner hidden={sendable} className="text-neutral-400 group-focus-within:hidden block" chars={"< "} ms={500} /> */}
 
             <Button hidden={!sendable} disabled={!sendable} onClick={send}>
                 {!active ? "wait" : "send"}

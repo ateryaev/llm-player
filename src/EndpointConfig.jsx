@@ -60,8 +60,8 @@ export function EndpointConfig({ config, onChange, endpointInfo }) {
                     <div className="p-2 flex justify-between gap-1">
                         <div className="flex-1">Headers</div>
 
-                        <Div hidden={!isHeadersValid} className="text-green-500">valid</Div>
-                        <Div hidden={isHeadersValid} className="text-red-500">
+                        <Div hidden={!isHeadersValid} className="text-green-600">valid</Div>
+                        <Div hidden={isHeadersValid} className="text-red-600">
                             <CharSpinner chars={" ."} />invalid</Div>
                     </div>
                     <Textarea
