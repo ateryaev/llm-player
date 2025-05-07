@@ -44,7 +44,8 @@ function SendForm({ message, active, onSend }) {
     }
 
     return (
-        <div className="p-0 my-2 pr-4 m-auto w-full max-w-3xl items-center flex gap-2 ring-6 ring-black/5 group
+        <div className="p-0 my-2 pr-4 m-auto w-full max-w-3xl items-start flex gap-2 ring-6 ring-black/5 group
+        
         focus-within:ring-blue-300 focus-within:bg-blue-50 bg-white rounded-lg ">
 
             <textarea
@@ -68,7 +69,7 @@ function SendForm({ message, active, onSend }) {
                 }}
             />
 
-            <Button hidden={!sendable} disabled={!sendable} onClick={send}>
+            <Button className="my-3" hidden={!sendable} disabled={!sendable} onClick={send}>
                 {!active ? "wait" : "send"}
             </Button>
         </div>

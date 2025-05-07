@@ -3,7 +3,10 @@ import Message from "./Message";
 
 function Messages({ messages, loadingIndex, editingIndex, onDelete }) {
     const [selectedIndex, setSelectedIndex] = useState(-1);
-
+    function handleDelete(from, to) {
+        setSelectedIndex(-1);
+        onDelete(from, to);
+    }
     return (
         <>
             {messages.map((message, index) => (
@@ -18,7 +21,10 @@ function Messages({ messages, loadingIndex, editingIndex, onDelete }) {
                     deleted={message.deleted}
                     createdOn={message.createdOn}
                     loading={index === loadingIndex}
-                    onDelete={() => { setSelectedIndex(-1); onDelete(index) }} />
+                    onDelete={() => { handleDelete(index, index) }}
+                    onDeleteBefore={() => { handleDelete(0, index - 1) }}
+                    onDeleteAfter={() => { handleDelete(index + 1, index + messages.length) }}
+                />
             ))}
         </>
     );

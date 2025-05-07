@@ -4,6 +4,7 @@ html {
   touch-action: manipulation;
   font-family: monospace, Courier, 'Courier New';
   font-size: 14px;
+  xxfilter: invert(90%) saturate(50%) contrast(90%) hue-rotate(180deg);
 }
 
 dialog::backdrop {

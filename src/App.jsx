@@ -7,6 +7,8 @@ import { Button } from "./components/Button";
 import { Config } from "./Config";
 import { getEndpointInfo } from "./utils/endpoints";
 import { useConfig } from "./ConfigContext";
+import { Div } from "./components/UI";
+import { CharSpinner } from "./components/Cursors";
 
 export default function OpenAIChatApp() {
   const scrollerRef = useRef(null);
@@ -15,9 +17,17 @@ export default function OpenAIChatApp() {
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [loading, setLoading] = useState(true);
   const [chatHistory, setChatHistory] = useState([]);
+  const [preChatHistory, setPreChatHistory] = useState(null);
+  const [undoVisibility, setUndoVisibility] = useState(0);
 
   const { endpoint, config } = useConfig();
 
+  const undoPossible = useMemo(() => {
+    if (preChatHistory === null) return false;
+    if (undoVisibility > 0) return true;
+    return false;
+  }
+    , [preChatHistory, undoVisibility]);
 
   useEffect(() => {
     //load config from local storage
@@ -31,6 +41,22 @@ export default function OpenAIChatApp() {
     }
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (preChatHistory === null) return;
+    setUndoVisibility(100);
+    const interval = setInterval(() => {
+      setUndoVisibility((prev) => {
+        if (prev < 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 4;
+      });
+    }, 150);
+    return () => clearInterval(interval);
+
+  }, [preChatHistory]);
 
   useEffect(() => {
     if (loading) return;
@@ -52,6 +78,7 @@ export default function OpenAIChatApp() {
   }, [chatHistory]);
 
   async function sendMessage(msg) {
+    setPreChatHistory(null);
     scrollerRef.current && (scrollerRef.current.scrollTop = 0);
     setLoading(true);
     let messagesForApi = [...chatHistory];
@@ -137,11 +164,22 @@ export default function OpenAIChatApp() {
     sendMessage(lastMessage);
   }
 
-  function handleDelete(index) {
+  function handleDelete(indexFrom, indexTo) {
     if (loading) return;
-    chatHistory.splice(index, 1);
+    if (undoPossible) {
+      setUndoVisibility(100);
+    } else {
+      setPreChatHistory([...chatHistory]);
+    }
+
+    chatHistory.splice(indexFrom, indexTo - indexFrom + 1);
     const nextMessages = [...chatHistory]
     setChatHistory(nextMessages);
+  }
+
+  function handleUndoDeletion() {
+    setChatHistory([...preChatHistory]);
+    setPreChatHistory(null);
   }
 
   function handleScroll() {
@@ -150,6 +188,7 @@ export default function OpenAIChatApp() {
 
   function handleClearAll() {
     if (loading) return;
+    setPreChatHistory([...chatHistory]);
     setChatHistory([]);
     setShowWarning(false);
   }
@@ -172,8 +211,16 @@ export default function OpenAIChatApp() {
           <Button onClick={handleShowConfig}>config</Button>
         </div>
       </div>
-
-      <div ref={scrollerRef} className="flex-1 flex w-full flex-col-reverse overflow-auto no-scrollbar items-stretch"
+      <Button
+        className="bottom-fulxl translate-y-24 absolute z-20 -xmy-10  shadow-black/10 stickyx p-2 px-4 flex mx-auto
+            justify-center gap-1 rounded-full ring-6 w-fit  ring-black/10 bg-pink-500 text-white opacity-90 text-center"
+        hidden={!undoPossible} onClick={handleUndoDeletion}>
+        undo deletion
+        <div className="w-full bg-white/50 -m-px">
+          <div style={{ scale: `${undoVisibility}% 100%` }} className="transition-all h-[1px] w-full bg-white -m-px"></div>
+        </div>
+      </Button>
+      <div ref={scrollerRef} className="flex-1  flex w-full flex-col-reverse overflow-auto no-scrollbar items-stretch"
         onScroll={handleScroll}>
 
         <div className="max-w-3xl w-full m-auto p-4 pb-0 xpy-0 flex flex-col justify-end gap-4 flex-1">
@@ -181,9 +228,20 @@ export default function OpenAIChatApp() {
           <Messages messages={chatHistory} loadingIndex={loading ? chatHistory.length - 1 : -1} editingIndex={0} onDelete={handleDelete}></Messages>
 
           <Button
-            className="bottom-4 shadowx -my-7  shadow-black/10 sticky p-2 px-4 flex mx-auto
+            className="bottom-4 -my-7  shadow-black/10 sticky p-2 px-4 flex mx-auto
             justify-center gap-1 rounded-full ring-6 w-fit  ring-black/10 bg-blue-500 text-white opacity-90 text-center"
             hidden={isAtBottom} onClick={() => { scrollerRef.current.scrollTop = 0 }}>down</Button>
+
+
+          {/* <Button
+            className="bottom-full z-20 -my-7x  shadow-black/10 sticky p-2 px-4 flex mx-auto
+            justify-center gap-1 rounded-full ring-6 w-fit  ring-black/10 bg-yellow-500 text-white opacity-90 text-center"
+            hidden={undoPossible} onClick={handleUndoDeletion}>
+            undo deletion
+            <div className="w-full bg-white/50 -m-px">
+              <div style={{ scale: `${undoVisibility}% 100%` }} className="transition-all h-[1px] w-full bg-white -m-px"></div>
+            </div>
+          </Button> */}
 
           <Button
             className="p-2 px-4 my-1 w-fit mx-auto rounded-full ring-6 ring-black/5 bg-blue-50"
@@ -192,16 +250,11 @@ export default function OpenAIChatApp() {
             className="p-2 px-4 my-1 w-fit mx-auto rounded-full ring-6 ring-black/5 bg-blue-50"
             hidden={loading || lastMessage?.role !== "user"} onClick={handleGenerate}>generate response</Button>
 
-          <div className="select-none flex flex-coxl gap-1 text-neutral-500 text-xs xtext-center justify-center">
-            {chatSize > 0 && <div className="flex gap-1">
-              {chatSize} bytes
-              <Button hidden={loading} onClick={() => { setShowWarning(true); }}>clear all</Button>
-            </div>}
-            {chatSize === 0 && <div className="flex gap-1">
-              no messages yet
-            </div>}
+          <div className="select-none flex gap-1 text-neutral-500 text-xs justify-center">
+            <Div hidden={chatSize !== 0}>no messages yet</Div>
+            <Div hidden={chatSize === 0}>{chatSize} bytes</Div>
+            <Button hidden={chatSize === 0 || loading} onClick={() => { setShowWarning(true); }}>clear all</Button>
           </div>
-
         </div>
       </div>
 
