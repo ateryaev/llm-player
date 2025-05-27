@@ -4,11 +4,6 @@ html {
   touch-action: manipulation;
   font-family: monospace, Courier, 'Courier New';
   font-size: 14px;
-  xxfilter: invert(90%) saturate(50%) contrast(90%) hue-rotate(180deg);
-}
-
-dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.0);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,9 +18,45 @@ dialog::backdrop {
   padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
 }
 
+:root {
+  --transition-duration: 0.2s;
+}
+
+@media (prefers-reduced-motion) {
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-old(dialog-content) {
+  animation: slideIn var(--transition-duration) cubic-bezier(0.86, 0, 0.07, 1) reverse;
+  opacity: 0;
+}
+
+::view-transition-new(dialog-content) {
+  animation: slideIn var(--transition-duration) cubic-bezier(0.86, 0, 0.07, 1);
+}
+
+::view-transition-old(dialog-backdrop) {
+  animation: revealing var(--transition-duration) ease-in-out reverse;
+  opacity: 0;
+}
+
+::view-transition-new(dialog-backdrop) {
+  animation: revealing var(--transition-duration) ease-in-out;
+}
+
 @keyframes revealing {
   0% {
-    opacity: 0.0;
+    opacity: 0;
   }
 
   100% {
@@ -35,23 +66,13 @@ dialog::backdrop {
 
 @keyframes slideIn {
   0% {
-    transform: translateY(-50px);
-    opacity: 0.5;
+    transform: translateY(-50%) scale(1.2);
+    opacity: 0;
   }
 
   100% {
-    transform: translateY(0);
+    transform: translateY(0) scale(1.0);
     opacity: 1;
-  }
-}
-
-.dialogdiv {
-  max-height: 80dvh;
-}
-
-@media (max-height: 500px) {
-  .dialogdiv {
-    max-height: 100dvh;
   }
 }
 

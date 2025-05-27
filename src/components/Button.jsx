@@ -8,7 +8,7 @@ export function Button({ children, disabled, hidden, className, onClick, ...prop
     const btnRef = useRef(null);
     if (disabled) {
         return (
-            <button className={`${className} text-neutral-400 select-none`}
+            <button className={`lowercase ${className} text-neutral-400 select-none`}
                 disabled={true}
                 {...props}>[{children}]
             </button>
@@ -22,7 +22,7 @@ export function Button({ children, disabled, hidden, className, onClick, ...prop
     }
 
     return (
-        <button ref={btnRef} className={`whitespace-nowrap text-nowrap text-blue-500 select-none outline-none 
+        <button ref={btnRef} className={`lowercase whitespace-nowrap text-nowrap text-blue-500 select-none outline-none 
             cursor-pointer group/btn hover:font-bold active:font-bold
             focus:font-bold ${className}`}
             {...props} onClick={handleClick}>

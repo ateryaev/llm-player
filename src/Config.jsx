@@ -31,6 +31,7 @@ export function Config({ shown, onDone, readonly }) {
     function handleApply() {
         if (readonly) return;
         update(renderEndpoint, renderConfig);
+        //modalRef.current.hide()
         onDone();
     }
 
@@ -46,11 +47,11 @@ export function Config({ shown, onDone, readonly }) {
     }
 
     return (
-        <Modal isOpen={shown}
+        <Modal shown={shown}
             title={<>Configuration<Div hidden={!readonly} className="font-normal text-xs px-2 text-center text-neutral-500">generating &rarr; readonly</Div></>}
-            actionName={changed ? "Apply" : "Close"}
+            actionName={"Apply"}
             onAction={changed ? handleApply : undefined}
-            onClose={handleCancel}>
+            onCancel={handleCancel}>
 
             <div className="flex max-w-3xl m-auto gap-2 flex-col p-4 ">
 

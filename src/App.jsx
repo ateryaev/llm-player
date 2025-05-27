@@ -264,7 +264,7 @@ export default function OpenAIChatApp() {
 
       <Config shown={showConfig} onDone={setShowConfig} readonly={loading} />
 
-      <Modal isOpen={showWarning} onClose={() => setShowWarning(false)} title={"Warning"}
+      <Modal shown={showWarning} onCancel={() => setShowWarning(false)} title={"Warning"}
         actionName={"clear all"} onAction={handleClearAll}>
         <div className="p-4 text-center">
           Are you sure to delete all messages from this chat?
