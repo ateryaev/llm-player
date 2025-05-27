@@ -1,6 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { Button } from './Button';
 
+function runInViewTransition(fn) {
+  if (!document.startViewTransition) return fn();
+  return document.startViewTransition(fn);
+}
+
 const Modal = ({ shown, onCancel, title, actionName, onAction, children }) => {
 
   const dialogRef = useRef(null);
@@ -8,7 +13,8 @@ const Modal = ({ shown, onCancel, title, actionName, onAction, children }) => {
   const backdropRef = useRef(null);
 
   useEffect(() => {
-    document.startViewTransition(() => {
+
+    runInViewTransition(() => {
       if (shown) {
         dialogRef.current.showModal();
         scrollRef.current.scrollTop = 0;
