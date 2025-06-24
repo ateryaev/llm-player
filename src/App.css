@@ -8,8 +8,12 @@ html {
 
 @media (prefers-color-scheme: dark) {
 
-  html,
-  dialog {
+  ::view-transition-old(dialog-content),
+  ::view-transition-new(dialog-content),
+  ::view-transition-old(dialog-backdrop),
+  ::view-transition-new(dialog-backdrop),
+  dialog,
+  html {
     filter: invert(90%) saturate(50%) contrast(90%) hue-rotate(180deg);
   }
 }
@@ -19,7 +23,7 @@ html {
 }
 
 :root {
-  --transition-duration: 0.2s;
+  --transition-duration: 0.25s;
 }
 
 @media (prefers-reduced-motion) {

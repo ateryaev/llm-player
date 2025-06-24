@@ -43,7 +43,7 @@ const Modal = ({ shown, onCancel, title, actionName, onAction, children }) => {
       className="bg-black/0 select-none w-dvw h-dvh max-h-fit mx-auto min-w-dvw overflow-hidden">
 
       <div ref={backdropRef} className="[view-transition-name:dialog-backdrop] h-dvh bg-black/50 dark:bg-white/50" onClick={handleBackdropClick}>
-        <div className={"max-h-[max(80dvh,min(500px,100dvh))] [view-transition-name:dialog-content] w-full flex flex-col bg-neutral-100 shadow-md outline-none "} tabIndex={0}>
+        <div className={"max-h-[max(80dvh,min(500px,100dvh))] [view-transition-name:dialog-content] w-full flex flex-col bg-neutral-100 shadow-lg dark:shadow-white/80 shadow-black/20 outline-none "} tabIndex={0}>
           <div className="bg-white z-30 ring-2 ring-black/10">
             <div className="p-4 text-center font-bold">{title}</div>
           </div>
