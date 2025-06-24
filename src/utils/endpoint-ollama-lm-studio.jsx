@@ -15,13 +15,13 @@ export class OllamaLmStudioApi {
         return this.#lastData;
     }
 
-    abortLoadingModels() {
+    abortLoadingModels = () => {
         if (typeof this.#modelsFetcher?.abort === "function") {
             this.#modelsFetcher.abort();
         }
     }
 
-    async loadModelList(url) {
+    loadModelList = async (url) => {
         this.abortLoadingModels(); // Call abort to cancel any previous request
         if (this.#modelsFetcher !== null) {
             console.log("Loading models still in progress...");
