@@ -15,8 +15,6 @@ export function EndpointConfig({ config, onChange, endpointInfo }) {
         }
     }, [config.headers]);
 
-    const hasModelLoader = useMemo(() => !!endpointInfo.implementation.abortLoadingModels, [endpointInfo])
-
     function hasParam(param) {
         return endpointInfo.usedParams.includes(param);
     }
@@ -56,7 +54,7 @@ export function EndpointConfig({ config, onChange, endpointInfo }) {
                 <ModelSelector value={config.model}
                     onChange={(value) => { change("model", value) }}
                     loader={() => endpointInfo.implementation.loadModelList(config.baseUrl, config.headers)}
-                    abort={hasModelLoader ? (() => endpointInfo.implementation.abortLoadingModels()) : null} />
+                    abort={endpointInfo.implementation.abortLoadingModels} />
 
                 <Div hidden={!hasParam("headers")}>
                     <div className="p-2 flex justify-between gap-1">

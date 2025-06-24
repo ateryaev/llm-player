@@ -56,13 +56,13 @@ export function Select({ ref, hidden, value, onChange, options, loading, error }
 
                 <Div hidden={error || loading || options.length > 0}
                     className="p-2 px-3 text-red-600"
-                    onClick={() => dropdownRef.current.blur()}>
+                    onClick={() => (ref || dropdownRef).current.blur()}>
                     no models, try to reload
                 </Div>
 
                 <Div hidden={!error}
                     className="p-2 px-3 text-red-500 bg-red-50 xtext-xs"
-                    onClick={() => dropdownRef.current.blur()}>
+                    onClick={() => (ref || dropdownRef).current.blur()}>
                     error: {error}
                 </Div>
             </div>
